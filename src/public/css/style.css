@@ -3,3 +3,15 @@
     margin: 0;
     padding: 0;
 }
+
+a {
+    text-decoration: none;
+}
+
+.btn {
+    background-color: #008CBA; /* Blue */
+    border: none;        
+    color: white;        
+    padding: 8px;
+    font-size: 16px;
+}

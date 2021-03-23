@@ -1,0 +1,9 @@
+# Privachat - File Structure
+
+```txt
+controllers/: logic.
+models/: database schema.
+public/: static files.
+views/: user interface.
+```
+

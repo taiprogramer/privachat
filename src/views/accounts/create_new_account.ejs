@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Privacy chat - Create new account</title>
+	<link rel="stylesheet" href="css/accounts/style.css">
+	<link rel="stylesheet" href="css/style.css">
+	<script src="js/h2non_jshashes/hashes.min.js"></script>
+	<script src="js/openpgpjs/openpgp.min.js"></script>
+	<script defer src="js/accounts/main.js"></script>
+</head>
+<body>
+    <form hidden action="/create_new_account" method="post">
+	<input type="text" name="hashed_username" id="tfHashedUsername">
+	<input type="password" name="auth_password" id="pfAuthPassword">
+	<input type="text" name="public_key" id="tfPublicKey">
+	<input type="text" name="encrypted_private_key" id="tfEncryptedPrivateKey">
+	<button type="submit" id="btnSubmit"></button>
+    </form>
+    <main>
+	<h2>Create new account</h2>
+	<input type="text" id="tfUsername" placeholder="Username">
+	<input type="password" id="pfPassword" placeholder="Password">
+	<button type="submit" class="btn"
+	    onclick="performSubmit({tfHashedUsername, pfAuthPassword, tfPublicKey,
+	    tfEncryptedPrivateKey, tfUsername, pfPassword, btnSubmit});">
+	    Create</button>
+    </main>
+</body>
+</html>
