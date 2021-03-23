@@ -2,6 +2,7 @@ import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
 import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
 import { usersCollection } from "../models/db.ts";
 import { UserSchema } from "../models/UserSchema.ts";
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
 
 export const postCreateNewAccount = async (ctx: Context) => {
   const bodyValue = await ctx.request.body({ type: "form" }).value;
@@ -78,7 +79,7 @@ async function createUser(
 ): Promise<boolean> {
   const u: UserSchema = {
     hashedUsername,
-    hashedPassword: authPassword,
+    hashedPassword: await bcrypt.hash(authPassword),
     publicKey,
     encryptedPrivateKey,
   };

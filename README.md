@@ -13,7 +13,7 @@ environment.
 Now, running the server
 
 ```
-cd src && deno --allow-net --allow-read --allow-env main.ts
+cd src && deno run --allow-net --allow-read --allow-env --unstable main.ts
 ```
 
 Read the [documentation](./doc/README.md)
