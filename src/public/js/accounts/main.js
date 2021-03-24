@@ -1,17 +1,23 @@
 const SHA256 = new Hashes.SHA256();
 const SHA512 = new Hashes.SHA512();
 
-async function performSubmit(
-  {
-    tfHashedUsername,
-    pfAuthPassword,
-    tfPublicKey,
-    tfEncryptedPrivateKey,
-    tfUsername,
-    pfPassword,
-    btnSubmit,
-  },
-) {
+const tfUsername = document.getElementById("tf_username");
+const pfPassword = document.getElementById("pf_password");
+const tfHashedUsername = document.getElementById("tf_hashed_username");
+const pfAuthPassword = document.getElementById("pf_auth_password");
+const tfPublicKey = document.getElementById("tf_public_key");
+const tfEncryptedPrivateKey = document.getElementById(
+  "tf_encrypted_private_key",
+);
+const formCreateNewAccount = document.getElementById("form_create_new_account");
+const formUserInfo = document.getElementById("form_user_info");
+
+formUserInfo.onsubmit = (e) => {
+  e.preventDefault();
+  performSubmit();
+};
+
+async function performSubmit() {
   const hashedUsername = SHA256.hex(tfUsername.value);
   /* local password use for encrypting private key */
   const localPassword = SHA512.hex(pfPassword.value);
@@ -32,6 +38,5 @@ async function performSubmit(
 
   tfPublicKey.value = publicKeyArmored;
   tfEncryptedPrivateKey.value = privateKeyArmored;
-
-  await btnSubmit.click();
+  formCreateNewAccount.submit();
 }

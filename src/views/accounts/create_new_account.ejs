@@ -11,21 +11,19 @@
 	<script defer src="js/accounts/main.js"></script>
 </head>
 <body>
-    <form hidden action="/create_new_account" method="post">
-	<input type="text" name="hashed_username" id="tfHashedUsername">
-	<input type="password" name="auth_password" id="pfAuthPassword">
-	<input type="text" name="public_key" id="tfPublicKey">
-	<input type="text" name="encrypted_private_key" id="tfEncryptedPrivateKey">
-	<button type="submit" id="btnSubmit"></button>
+    <form id="form_create_new_account" hidden action="/create_new_account" method="post">
+	<input type="text" name="hashed_username" id="tf_hashed_username">
+	<input type="password" name="auth_password" id="pf_auth_password">
+	<input type="text" name="public_key" id="tf_public_key">
+	<input type="text" name="encrypted_private_key" id="tf_encrypted_private_key">
     </form>
     <main>
-	<h2>Create new account</h2>
-	<input type="text" id="tfUsername" placeholder="Username">
-	<input type="password" id="pfPassword" placeholder="Password">
-	<button type="submit" class="btn"
-	    onclick="performSubmit({tfHashedUsername, pfAuthPassword, tfPublicKey,
-	    tfEncryptedPrivateKey, tfUsername, pfPassword, btnSubmit});">
-	    Create</button>
+	<form id="form_user_info">
+	    <h2>Create new account</h2>
+	    <input type="text" id="tf_username" placeholder="Username">
+	    <input type="password" id="pf_password" placeholder="Password">
+	    <button id="btn_create" class="btn">Create</button>
+	</form>
     </main>
 </body>
 </html>
