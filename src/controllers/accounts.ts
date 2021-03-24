@@ -38,18 +38,20 @@ export const postCreateNewAccount = async (ctx: Context) => {
   }
 
   if (
-    await createUser({
+    !await createUser({
       hashedUsername,
       authPassword,
       publicKey,
       encryptedPrivateKey,
     })
   ) {
-    ctx.response.body = { message: "User has been created." };
+    ctx.response.body = { message: "Something wrong." };
     return;
   }
-
-  ctx.response.body = { message: "Something wrong." };
+  ctx.response.body = await renderFileToString(
+    `${Deno.cwd()}/views/accounts/account_created.ejs`,
+    {},
+  );
 };
 
 export const getCreateNewAccount = async (ctx: Context) => {
