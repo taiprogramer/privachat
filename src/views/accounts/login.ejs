@@ -18,8 +18,10 @@
     <main>
 	<form id="form_user_info">
 	    <h2>Login</h2>
-	    <input type="text" id="tf_username" placeholder="Username">
-	    <input type="password" id="pf_password" placeholder="Password">
+	    <input type="text" id="tf_username" placeholder="Username"
+	    minlength="6" maxlength="21" required>
+	    <input type="password" id="pf_password" placeholder="Password"
+	    minlength="8" maxlength="60" required>
 	    <button type="submit" id="btn_login" class="btn">Login</button>
 	</form>
     </main>
