@@ -97,6 +97,13 @@ export const postLogin = async (ctx: Context) => {
     usr: u.hashedUsername,
     exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
   }, JWT_SECRET);
+  const now = new Date();
+  now.setTime(now.getTime() + parseInt(JWT_EXP_IN_MINUTES) * 60 * 1000);
+  const cookieExpireTime = now.toUTCString();
+  ctx.response.headers.set(
+    "Set-Cookie",
+    `access_token=${jwt}; Expires=${cookieExpireTime}; HttpOnly`,
+  );
   ctx.response.body = {
     message: "Login succeeded",
     access_token: jwt,

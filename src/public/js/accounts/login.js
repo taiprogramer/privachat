@@ -24,5 +24,7 @@ async function performSubmit() {
   tfHashedUsername.value = hashedUsername;
   pfAuthPassword.value = authPassword;
 
+  sessionStorage.setItem("username", tfUsername.value);
+  sessionStorage.setItem("local_password", localPassword);
   formLogin.submit();
 }
