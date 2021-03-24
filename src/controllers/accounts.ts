@@ -3,6 +3,15 @@ import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
 import { usersCollection } from "../models/db.ts";
 import { UserSchema } from "../models/UserSchema.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+import { create, getNumericDate } from "https://deno.land/x/djwt@v2.2/mod.ts";
+import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
+
+/* exported function
+- postCreateNewAccount
+- getCreateNewAccount
+- postLogin
+- getLogin
+*/
 
 export const postCreateNewAccount = async (ctx: Context) => {
   const bodyValue = await ctx.request.body({ type: "form" }).value;
@@ -14,13 +23,16 @@ export const postCreateNewAccount = async (ctx: Context) => {
 
   /* check if all data are valid */
   if (
-    !validData({ hashedUsername, authPassword, publicKey, encryptedPrivateKey })
+    isEmpty(hashedUsername) || isEmpty(authPassword) || isEmpty(publicKey) ||
+    isEmpty(encryptedPrivateKey) ||
+    !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
+    !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
     ctx.response.body = { message: "Invalid data." };
     return;
   }
   /* check if user already exists. */
-  if (await isUserExist(hashedUsername)) {
+  if (await usersCollection.findOne({ hashedUsername }) !== undefined) {
     ctx.response.body = { message: "User already exists." };
     return;
   }
@@ -47,27 +59,47 @@ export const getCreateNewAccount = async (ctx: Context) => {
   );
 };
 
-function validData(
-  { hashedUsername, authPassword, publicKey, encryptedPrivateKey }: {
-    hashedUsername: string;
-    authPassword: string;
-    publicKey: string;
-    encryptedPrivateKey: string;
-  },
-): boolean {
-  let valid = true;
-  valid = valid &&
-    !(isEmpty(hashedUsername) || isEmpty(authPassword) || isEmpty(publicKey) ||
-      isEmpty(encryptedPrivateKey));
-  valid = valid && isSHAhex({ s: hashedUsername, numBits: 256 });
-  valid = valid && isSHAhex({ s: authPassword, numBits: 512 });
-  return valid;
-}
+export const getLogin = async (ctx: Context) => {
+  ctx.response.body = await renderFileToString(
+    `${Deno.cwd()}/views/accounts/login.ejs`,
+    {},
+  );
+};
 
-async function isUserExist(hashedUsername: string): Promise<boolean> {
+export const postLogin = async (ctx: Context) => {
+  const bodyValue = await ctx.request.body({ type: "form" }).value;
+  const hashedUsername: string = bodyValue.get("hashed_username") || "";
+  const authPassword: string = bodyValue.get("auth_password") || "";
+
+  /* make sure all data are valid */
+  if (
+    isEmpty(hashedUsername) || isEmpty(authPassword) ||
+    !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
+    !isSHAhex({ s: authPassword, numBits: 512 })
+  ) {
+    ctx.response.body = { message: "Invalid data" };
+    return;
+  }
+
   const u = await usersCollection.findOne({ hashedUsername });
-  return u !== undefined;
-}
+  if (u === undefined) {
+    ctx.response.body = { message: "User does not exist." };
+    return;
+  }
+  if (!await bcrypt.compare(authPassword, u.hashedPassword)) {
+    ctx.response.body = { message: "Wrong username or password." };
+    return;
+  }
+
+  const jwt = await create({ alg: "HS512", typ: "JWT" }, {
+    usr: u.hashedUsername,
+    exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
+  }, JWT_SECRET);
+  ctx.response.body = {
+    message: "Login succeeded",
+    access_token: jwt,
+  };
+};
 
 async function createUser(
   { hashedUsername, authPassword, publicKey, encryptedPrivateKey }: {

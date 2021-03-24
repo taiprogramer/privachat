@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy chat - Login</title>
+    <link rel="stylesheet" href="css/accounts/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/h2non_jshashes/hashes.min.js"></script>
+    <script defer src="js/accounts/login.js"></script>
+</head>
+<body>
+    <form id="form_login" hidden action="/login" method="post">
+	<input type="text" name="hashed_username" id="tf_hashed_username">
+	<input type="password" name="auth_password" id="pf_auth_password">
+    </form>
+    <main>
+	<form id="form_user_info">
+	    <h2>Login</h2>
+	    <input type="text" id="tf_username" placeholder="Username">
+	    <input type="password" id="pf_password" placeholder="Password">
+	    <button type="submit" id="btn_login" class="btn">Login</button>
+	</form>
+    </main>
+</body>
+</html>
