@@ -1,4 +1,4 @@
-# Privachat - File Structure
+# Privachat - Source Code Structure
 
 ```txt
 controllers/: logic.
@@ -7,3 +7,9 @@ public/: static files.
 views/: user interface.
 ```
 
+## Controllers
+
+### Accounts
+
+- Create new account
+- Login
