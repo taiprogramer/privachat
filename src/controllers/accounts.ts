@@ -3,7 +3,11 @@ import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
 import { usersCollection } from "../models/db.ts";
 import { UserSchema } from "../models/UserSchema.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
-import { create, getNumericDate } from "https://deno.land/x/djwt@v2.2/mod.ts";
+import {
+  create,
+  getNumericDate,
+  verify,
+} from "https://deno.land/x/djwt@v2.2/mod.ts";
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 
 /* exported function
@@ -11,6 +15,8 @@ import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 - getCreateNewAccount
 - postLogin
 - getLogin
+- getLogout
+- toHomeIfAuthenticatedMiddleware: middleware redirect authenticated user to home
 */
 
 export const postCreateNewAccount = async (ctx: Context) => {
@@ -104,10 +110,34 @@ export const postLogin = async (ctx: Context) => {
     "Set-Cookie",
     `access_token=${jwt}; Expires=${cookieExpireTime}; HttpOnly`,
   );
-  ctx.response.body = {
-    message: "Login succeeded",
-    access_token: jwt,
-  };
+  ctx.response.redirect("/");
+};
+
+export const getLogout = async (ctx: Context) => {
+  ctx.cookies.set("access_token", "");
+  ctx.response.body = await renderFileToString(
+    `${Deno.cwd()}/views/accounts/logout.ejs`,
+    {},
+  );
+};
+
+export const toHomeIfAuthenticatedMiddleware = async (
+  ctx: Context,
+  next: any,
+) => {
+  const accessToken = ctx.cookies.get("access_token");
+  if (accessToken === undefined) {
+    await next();
+    return;
+  }
+
+  try {
+    const payload = await verify(accessToken, JWT_SECRET, "HS512");
+  } catch (e) {
+    await next();
+    return;
+  }
+  ctx.response.redirect("/");
 };
 
 async function createUser(
