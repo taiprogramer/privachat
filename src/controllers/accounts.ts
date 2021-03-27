@@ -9,6 +9,7 @@ import {
   verify,
 } from "https://deno.land/x/djwt@v2.2/mod.ts";
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
+import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 
 /* exported function
 - postCreateNewAccount
@@ -29,8 +30,9 @@ export const postCreateNewAccount = async (ctx: Context) => {
 
   /* check if all data are valid */
   if (
-    isEmpty(hashedUsername) || isEmpty(authPassword) || isEmpty(publicKey) ||
-    isEmpty(encryptedPrivateKey) ||
+    isStringEmpty(hashedUsername) || isStringEmpty(authPassword) ||
+    isStringEmpty(publicKey) ||
+    isStringEmpty(encryptedPrivateKey) ||
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
@@ -81,7 +83,7 @@ export const postLogin = async (ctx: Context) => {
 
   /* make sure all data are valid */
   if (
-    isEmpty(hashedUsername) || isEmpty(authPassword) ||
+    isStringEmpty(hashedUsername) || isStringEmpty(authPassword) ||
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
@@ -156,13 +158,4 @@ async function createUser(
   };
   const insertedId = await usersCollection.insertOne(u);
   return insertedId !== undefined;
-}
-
-function isEmpty(s: string): boolean {
-  return s === "";
-}
-
-function isSHAhex({ s, numBits }: { s: string; numBits: number }): boolean {
-  let regex = new RegExp(`[0-9A-Fa-f]{${numBits / 4}}`);
-  return s.length === (numBits / 4) && regex.test(s);
 }

@@ -1,11 +1,11 @@
 import { Application } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import { staticFileMiddleware } from "./staticFileMiddleware.ts";
+import { serveStaticFile } from "./serve_static_file.ts";
 import router from "./router.ts";
 import { PORT } from "./config.ts";
 
 const app = new Application();
 
-app.use(staticFileMiddleware);
+app.use(serveStaticFile);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
