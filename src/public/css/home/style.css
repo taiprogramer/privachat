@@ -1,3 +1,32 @@
+/*
+ * _ prefix: ui when user logged in.
+ * */
+
 body {
     padding: 16px;
+}
+
+#_header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#btn_logout {
+    margin-left: 8px;
+}
+
+ul {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+li {
+    margin-right: 8px;
+}
+
+hr {
+    margin: 8px 0;
 }

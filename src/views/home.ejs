@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="css/style.css">
-	<title>Privachat</title>
-	<link rel="stylesheet" href="css/home/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Privachat</title>
+    <link rel="stylesheet" href="css/home/style.css">
 </head>
 <body>
     <% if (isAuthenticated) { %>
-    Hello, <%= hashedUsername %>
-    <a href="/logout">Logout</a>
+    <header id="_header">
+	<h1><%= hashedUsername.substring(0, 15) %></h1>
+	<a href="/logout" class="btn" id="btn_logout">Logout</a>
+    </header>
+    <hr>
     <% } else { %>
-    <a class="btn" href="/create_new_account">Create new account</a>
-    <a class="btn" href="/login">Login</a>
+    <header id="header">
+	<h1>Welcome to Privachat</h1>
+	<p>Together, we are going to make messaging safe again.</p>
+    </header>
+    <hr>
+    <nav>
+	<ul>
+	    <li><a class="btn" href="/create_new_account">Create new account</a></li>
+	    <li><a class="btn" href="/login">Login</a></li>
+	    <li><a class="btn" href="http://github.com/taiprogramer/privachat">See the source code</a></li>
+	</ul>
+    </nav>
     <% } %>
 </body>
 </html>
-
