@@ -5,7 +5,7 @@ import {
   getLogout,
   postCreateNewAccount,
   postLogin,
-  toHomeIfAuthenticatedMiddleware,
+  toHomeIfLoggedIn,
 } from "./controllers/accounts.ts";
 import { getHome } from "./controllers/home.ts";
 
@@ -16,10 +16,10 @@ router
   .post("/create_new_account", postCreateNewAccount)
   .get(
     "/create_new_account",
-    toHomeIfAuthenticatedMiddleware,
+    toHomeIfLoggedIn,
     getCreateNewAccount,
   )
-  .get("/login", toHomeIfAuthenticatedMiddleware, getLogin)
+  .get("/login", toHomeIfLoggedIn, getLogin)
   .post("/login", postLogin)
   .get("/logout", getLogout);
 

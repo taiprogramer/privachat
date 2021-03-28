@@ -11,16 +11,16 @@ import {
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 
-/* exported function
-- postCreateNewAccount
-- getCreateNewAccount
-- postLogin
-- getLogin
-- getLogout
-- toHomeIfAuthenticatedMiddleware: middleware redirect authenticated user to home
-*/
+export {
+  getCreateNewAccount,
+  getLogin,
+  getLogout,
+  postCreateNewAccount,
+  postLogin,
+  toHomeIfLoggedIn,
+};
 
-export const postCreateNewAccount = async (ctx: Context) => {
+const postCreateNewAccount = async (ctx: Context) => {
   const bodyValue = await ctx.request.body({ type: "form" }).value;
   const hashedUsername: string = bodyValue.get("hashed_username") || "";
   const authPassword: string = bodyValue.get("auth_password") || "";
@@ -62,21 +62,21 @@ export const postCreateNewAccount = async (ctx: Context) => {
   );
 };
 
-export const getCreateNewAccount = async (ctx: Context) => {
+const getCreateNewAccount = async (ctx: Context) => {
   ctx.response.body = await renderFileToString(
     `${Deno.cwd()}/views/accounts/create_new_account.ejs`,
     {},
   );
 };
 
-export const getLogin = async (ctx: Context) => {
+const getLogin = async (ctx: Context) => {
   ctx.response.body = await renderFileToString(
     `${Deno.cwd()}/views/accounts/login.ejs`,
     {},
   );
 };
 
-export const postLogin = async (ctx: Context) => {
+const postLogin = async (ctx: Context) => {
   const bodyValue = await ctx.request.body({ type: "form" }).value;
   const hashedUsername: string = bodyValue.get("hashed_username") || "";
   const authPassword: string = bodyValue.get("auth_password") || "";
@@ -115,7 +115,7 @@ export const postLogin = async (ctx: Context) => {
   ctx.response.redirect("/");
 };
 
-export const getLogout = async (ctx: Context) => {
+const getLogout = async (ctx: Context) => {
   ctx.cookies.set("access_token", "");
   ctx.response.body = await renderFileToString(
     `${Deno.cwd()}/views/accounts/logout.ejs`,
@@ -123,23 +123,21 @@ export const getLogout = async (ctx: Context) => {
   );
 };
 
-export const toHomeIfAuthenticatedMiddleware = async (
+const toHomeIfLoggedIn = async (
   ctx: Context,
   next: any,
 ) => {
   const accessToken = ctx.cookies.get("access_token");
   if (accessToken === undefined) {
-    await next();
-    return;
+    return await next();
   }
 
   try {
-    const payload = await verify(accessToken, JWT_SECRET, "HS512");
-  } catch (e) {
+    await verify(accessToken, JWT_SECRET, "HS512");
+    ctx.response.redirect("/");
+  } catch {
     await next();
-    return;
   }
-  ctx.response.redirect("/");
 };
 
 async function createUser(

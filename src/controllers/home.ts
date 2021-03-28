@@ -13,7 +13,7 @@ export const getHome = async (ctx: Context) => {
       const payload = await verify(accessToken, JWT_SECRET, "HS512");
       isAuthenticated = true;
       hashedUsername = payload.usr;
-    } catch (e) {
+    } catch {
       isAuthenticated = false;
     }
   }
