@@ -12,6 +12,7 @@ import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 
 export {
+  checkAuth,
   getCreateNewAccount,
   getLogin,
   getLogout,
@@ -137,6 +138,18 @@ const toHomeIfLoggedIn = async (
     ctx.response.redirect("/");
   } catch {
     await next();
+  }
+};
+
+const checkAuth = async (ctx: Context, next: any) => {
+  const accessToken = ctx.cookies.get("access_token") ||
+    "random_string_represent_wrong_token";
+
+  try {
+    ctx.state.payload = await verify(accessToken, JWT_SECRET, "HS512");
+    await next();
+  } catch {
+    return ctx.response.redirect("/login");
   }
 };
 
