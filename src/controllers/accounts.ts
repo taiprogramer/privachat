@@ -10,6 +10,16 @@ import {
 } from "https://deno.land/x/djwt@v2.2/mod.ts";
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
+import {
+  ERROR,
+  INCORRECT_USERNAME_OR_PASSWORD,
+  INVALID_DATA,
+  SUCCESS,
+  UNKNOWN_ERROR,
+  USER_ALREADY_EXISTS,
+  USER_CREATED,
+  USER_NOT_FOUND,
+} from "../helpers/message_constants.ts";
 
 export {
   checkAuth,
@@ -37,12 +47,15 @@ const postCreateNewAccount = async (ctx: Context) => {
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
-    ctx.response.body = { message: "Invalid data." };
+    ctx.response.body = JSON.stringify({ msg: INVALID_DATA, msg_type: ERROR });
     return;
   }
   /* check if user already exists. */
   if (await usersCollection.findOne({ hashedUsername }) !== undefined) {
-    ctx.response.body = { message: "User already exists." };
+    ctx.response.body = JSON.stringify({
+      msg: USER_ALREADY_EXISTS,
+      msg_type: ERROR,
+    });
     return;
   }
 
@@ -54,13 +67,10 @@ const postCreateNewAccount = async (ctx: Context) => {
       encryptedPrivateKey,
     })
   ) {
-    ctx.response.body = { message: "Something wrong." };
+    ctx.response.body = JSON.stringify({ msg: UNKNOWN_ERROR, msg_type: ERROR });
     return;
   }
-  ctx.response.body = await renderFileToString(
-    `${Deno.cwd()}/views/accounts/account_created.ejs`,
-    {},
-  );
+  ctx.response.body = JSON.stringify({ msg: USER_CREATED, msg_type: SUCCESS });
 };
 
 const getCreateNewAccount = async (ctx: Context) => {
@@ -88,17 +98,23 @@ const postLogin = async (ctx: Context) => {
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
-    ctx.response.body = { message: "Invalid data" };
+    ctx.response.body = JSON.stringify({ msg: INVALID_DATA, msg_type: ERROR });
     return;
   }
 
   const u = await usersCollection.findOne({ hashedUsername });
   if (u === undefined) {
-    ctx.response.body = { message: "User does not exist." };
+    ctx.response.body = JSON.stringify({
+      msg: USER_NOT_FOUND,
+      msg_type: ERROR,
+    });
     return;
   }
   if (!await bcrypt.compare(authPassword, u.hashedPassword)) {
-    ctx.response.body = { message: "Wrong username or password." };
+    ctx.response.body = JSON.stringify({
+      msg: INCORRECT_USERNAME_OR_PASSWORD,
+      msg_type: ERROR,
+    });
     return;
   }
 
