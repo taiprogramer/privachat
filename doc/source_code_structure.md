@@ -1,10 +1,14 @@
 # Privachat - Source Code Structure
 
 ```txt
-controllers/: logic.
-models/: database schema.
-public/: static files.
-views/: user interface.
+.
+├── doc ;documentation
+└── src
+    ├── controllers ;logic
+    ├── helpers ;util functions
+    ├── models ;database schema
+    ├── public ;static files
+    └── views ;user interface
 ```
 
 ## Controllers
