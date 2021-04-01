@@ -5,32 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/h2non_jshashes/hashes.min.js"></script>
-    <script defer src="js/contact/add_contact.js"></script>
-    <style>
-    body {
-	height: 80vh;
-	display: flex;
-	justify-content: center; /* main axis */
-	align-items: center; /* cross axis */
-    }
-
-    #form_add_contact {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-
-    }
-
-    #form_add_contact button {
-	margin-top: 8px;
-    }
-    </style>
+    <script type="module" src="js/contact/add_contact.js"></script>
+    <link rel="stylesheet" href="css/bootstrap/style.css">
+    <link rel="stylesheet" href="css/contact/style.css">
 </head>
 <body>
+    <div id="notification" class="alert hidden"></div>
     <form id="form_add_contact" action="/add_contact" method="post">
 	<h2>Add contact</h2>
 	<input type="text" id="tf_username" placeholder="Username (identify user)">
-	<input hidden type="text" name="hashed_username" id="tf_hashed_username">
 	<input type="text" name="nickname" id="tf_nickname"
 	placeholder="Nickname (mask user)">
 	<button class="btn" type="submit">Add contact</button>
