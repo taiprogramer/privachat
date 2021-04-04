@@ -1,32 +1,42 @@
-/*
- * _ prefix: ui when user logged in.
- * */
+h1, h2, h3, p, header {
+    text-align: center;
+}
 
 body {
     padding: 16px;
 }
 
-#_header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-#btn_logout {
-    margin-left: 8px;
-}
-
-ul {
-    margin-top: 16px;
-    display: flex;
-    flex-direction: row;
-    list-style-type: none;
-}
-
-li {
-    margin-right: 8px;
-}
-
 hr {
-    margin: 8px 0;
+    margin: 16px;
+}
+
+#features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 16px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 8px;
+}
+
+.card img {
+    max-width: 100%;
+    max-height: 120px;
+    padding: 8px;
+}
+
+@media only screen and (max-width: 800px) {
+    #features {
+	grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media only screen and (max-width: 469px) {
+    #features {
+	grid-template-columns: 1fr;
+    }
 }

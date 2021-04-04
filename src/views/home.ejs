@@ -9,27 +9,9 @@
 </head>
 <body>
     <% if (isAuthenticated) { %>
-    <header id="_header">
-	<h1><%= hashedUsername.substring(0, 15) %></h1>
-	<a href="/logout" class="btn" id="btn_logout">Logout</a>
-    </header>
-    <hr>
-    <main>
-	<a class="btn" href="/add_contact">Add contact</a>
-    </main>
+    <%- await include("views/home/authenticated.ejs"); %>
     <% } else { %>
-    <header id="header">
-	<h1>Welcome to Privachat</h1>
-	<p>Together, we are going to make messaging safe again.</p>
-    </header>
-    <hr>
-    <nav>
-	<ul>
-	    <li><a class="btn" href="/create_new_account">Create new account</a></li>
-	    <li><a class="btn" href="/login">Login</a></li>
-	    <li><a class="btn" href="http://github.com/taiprogramer/privachat">See the source code</a></li>
-	</ul>
-    </nav>
+    <%- await include("views/home/welcome.ejs"); %>
     <% } %>
 </body>
 </html>
