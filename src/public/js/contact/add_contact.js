@@ -1,5 +1,4 @@
-import { ERROR, SUCCESS } from "../module/constants.js";
-
+import { notify } from "../module/helpers.js";
 const SHA256 = new Hashes.SHA256();
 
 const divNotification = document.getElementById("notification");
@@ -22,22 +21,3 @@ formAddContact.onsubmit = async (e) => {
 
   notify(json.msg, json.msg_type, 3000, divNotification);
 };
-
-function notify(msg, msgType, duration, element) {
-  switch (msgType) {
-    case ERROR:
-      element.classList.remove("alert-success");
-      element.classList.add("alert-danger");
-      break;
-    case SUCCESS:
-      element.classList.remove("alert-danger");
-      element.classList.add("alert-success");
-      break;
-  }
-
-  element.innerText = msg;
-  element.classList.remove("hidden");
-  setTimeout(() => {
-    element.classList.add("hidden");
-  }, duration);
-}

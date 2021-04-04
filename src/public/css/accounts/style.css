@@ -15,3 +15,14 @@ body {
 button[type="submit"] {
     margin-top: 8px;
 }
+
+#notification {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    transition: opacity 1s;
+}
+
+.hidden {
+    opacity: 0;
+}

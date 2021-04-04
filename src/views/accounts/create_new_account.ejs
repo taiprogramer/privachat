@@ -6,18 +6,14 @@
 	<title>Privacy chat - Create new account</title>
 	<link rel="stylesheet" href="css/accounts/style.css">
 	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/bootstrap/style.css">
 	<script src="js/h2non_jshashes/hashes.min.js"></script>
 	<script src="js/openpgpjs/openpgp.min.js"></script>
-	<script defer src="js/accounts/main.js"></script>
+	<script type="module" src="js/accounts/main.js"></script>
 </head>
 <body>
-    <form id="form_create_new_account" hidden action="/create_new_account" method="post">
-	<input type="text" name="hashed_username" id="tf_hashed_username">
-	<input type="password" name="auth_password" id="pf_auth_password">
-	<input type="text" name="public_key" id="tf_public_key">
-	<input type="text" name="encrypted_private_key" id="tf_encrypted_private_key">
-    </form>
     <main>
+	<div id="notification" class="alert hidden"></div>
 	<form id="form_user_info">
 	    <h2>Create new account</h2>
 	    <input type="text" id="tf_username" placeholder="Username"

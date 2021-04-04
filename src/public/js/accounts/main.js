@@ -1,32 +1,22 @@
+import { notify } from "../module/helpers.js";
+
 const SHA256 = new Hashes.SHA256();
 const SHA512 = new Hashes.SHA512();
 
 const tfUsername = document.getElementById("tf_username");
 const pfPassword = document.getElementById("pf_password");
-const tfHashedUsername = document.getElementById("tf_hashed_username");
-const pfAuthPassword = document.getElementById("pf_auth_password");
-const tfPublicKey = document.getElementById("tf_public_key");
-const tfEncryptedPrivateKey = document.getElementById(
-  "tf_encrypted_private_key",
-);
-const formCreateNewAccount = document.getElementById("form_create_new_account");
 const formUserInfo = document.getElementById("form_user_info");
+const divNotification = document.getElementById("notification");
 
-formUserInfo.onsubmit = (e) => {
+formUserInfo.onsubmit = async (e) => {
   e.preventDefault();
-  performSubmit();
-};
-
-async function performSubmit() {
+  /* enhance privacy */
   const hashedUsername = SHA256.hex(tfUsername.value);
   /* local password use for encrypting private key */
   const localPassword = SHA512.hex(pfPassword.value);
   /* authentication password use for authentication */
   /* ensure end-to-end encryption */
   const authPassword = SHA512.hex(localPassword);
-
-  tfHashedUsername.value = hashedUsername;
-  pfAuthPassword.value = authPassword;
 
   /* Generate new key pair */
   const { privateKeyArmored, publicKeyArmored } = await openpgp.generateKey({
@@ -36,7 +26,17 @@ async function performSubmit() {
     passphrase: localPassword,
   });
 
-  tfPublicKey.value = publicKeyArmored;
-  tfEncryptedPrivateKey.value = privateKeyArmored;
-  formCreateNewAccount.submit();
-}
+  const body = new URLSearchParams({
+    hashed_username: SHA256.hex(tfUsername.value),
+    auth_password: authPassword,
+    public_key: publicKeyArmored,
+    encrypted_private_key: privateKeyArmored,
+  });
+
+  const json = await fetch("/create_new_account", {
+    method: "POST",
+    body,
+  }).then((r) => r.json());
+
+  notify(json.msg, json.msg_type, 3000, divNotification);
+};
