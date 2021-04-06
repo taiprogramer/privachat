@@ -13,7 +13,7 @@ hr {
 #features {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    margin-top: 16px;
+    margin: 16px 0;
 }
 
 .card {
@@ -29,6 +29,28 @@ hr {
     padding: 8px;
 }
 
+#options {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.bloat-btn {
+    padding: 8px;
+    width: 200px;
+    background: none;
+    color: black;
+    text-align: center;
+    border: 1px solid skyblue;
+    margin: 8px;
+    border-radius: 5px;
+    transition: box-shadow 0.4s;
+}
+
+.bloat-btn:hover {
+    box-shadow: 2px 2px 5px 1px skyblue;
+}
+
 @media only screen and (max-width: 800px) {
     #features {
 	grid-template-columns: repeat(2, 1fr);
@@ -38,5 +60,10 @@ hr {
 @media only screen and (max-width: 469px) {
     #features {
 	grid-template-columns: 1fr;
+    }
+
+    #options {
+	flex-direction: column;
+	align-items: center;
     }
 }
