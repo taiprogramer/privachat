@@ -8,6 +8,10 @@ a {
     text-decoration: none;
 }
 
+ul {
+    list-style-type: none;
+}
+
 .btn {
     background-color: #008CBA; /* Blue */
     border: none;        

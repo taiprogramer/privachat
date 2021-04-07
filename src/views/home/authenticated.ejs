@@ -1,7 +1,43 @@
-<header id="_header">
+<header>
     <h1><%= hashedUsername.substring(0, 15) %></h1>
-    <a href="/logout" class="btn" id="btn_logout">Logout</a>
 </header>
-<main>
-    <a class="btn" href="/add_contact">Add contact</a>
+<main id="_main">
+    <section id="contact_area">
+	<ul id="contact_list">
+	    <li><a href="">My Crush</a></li>
+	    <li><a href="">Contact name</a></li>
+	    <li><a href="">Contact name</a></li>
+	    <li><a href="">Contact name</a></li>
+	</ul>
+    </section>
+    <section id="chat_area">
+	<h2>Chatting with My Crush...</h2>
+	<ul id="messages">
+	    <p class="timestamp">Oct 26 1955</p>
+	    <li class="message message-own">
+		<b class="message-sender">Me</b>
+		<p class="message-content">
+		Tôi không biết diễn tả như thế nào nhưng tôi thích em nhiều lắm!<br />
+		Nếu có thể em hãy cho tôi một cơ hội.<br />
+		Ta tìm hiểu nhau đi!</p>
+		<span class="message-timestamp">22:30</span>
+	    </li>
+	    <li class="message message-friend">
+		<b class="message-sender">My Crush</b>
+		<p class="message-content">Đồng ý!</p>
+		<span class="message-timestamp">22:31</span>
+	    </li>
+	    <li class="message message-own">
+		<b class="message-sender">Me</b>
+		<p class="message-content">Mai gặp.</p>
+		<span class="message-timestamp">22:31</span>
+	    </li>
+	    <li class="message message-friend">
+		<b class="message-sender">My Crush</b>
+		<p class="message-content">Ngủ ngon!</p>
+		<span class="message-timestamp">22:31</span>
+	    </li>
+	</ul>
+	<input type="text" placeholder="Enter to send, Shift + Enter to add new line"> 
+    </section>
 </main>

@@ -4,6 +4,7 @@ h1, h2, h3, p, header {
 
 body {
     padding: 16px;
+    height: 100vh;
 }
 
 hr {
@@ -65,5 +66,77 @@ hr {
     #options {
 	flex-direction: column;
 	align-items: center;
+    }
+}
+
+/* ============== Authenticated view ============== */
+#_main {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    height: 80%;
+}
+
+#chat_area {
+    max-height: 100%;
+    overflow: hidden;
+}
+
+#messages {
+    display: flex;
+    flex-direction: column;
+    max-height: 70%;
+    overflow: scroll;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    padding: 8px;
+}
+
+.message {
+    max-width: 50%;
+}
+
+.message-own {
+    align-self: flex-end;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.message-friend {
+    align-self: flex-start;
+}
+
+.message p {
+    text-align: left;
+    width: fit-content;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.message-friend p {
+    background: lightgray;
+}
+
+.message-own p {
+    background: steelblue;
+    color: white;
+}
+
+.message span {
+    color: darkgray;
+}
+
+input[type="text"] {
+    border: 1px solid blue;
+}
+
+@media only screen and (max-width: 469px) {
+    #_main {
+	grid-template-columns: 1fr;
+    }
+
+    #contact_area {
+	display: none;
     }
 }

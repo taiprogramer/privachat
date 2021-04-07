@@ -9,7 +9,7 @@
 </head>
 <body>
     <% if (isAuthenticated) { %>
-    <%- await include("views/home/authenticated.ejs"); %>
+    <%- await include("views/home/authenticated.ejs", { hashedUsername }); %>
     <% } else { %>
     <%- await include("views/home/welcome.ejs"); %>
     <% } %>
