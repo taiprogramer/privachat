@@ -154,6 +154,12 @@ input[type="text"] {
     background: lightblue;
 }
 
+#btn_logout {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+}
+
 @media only screen and (max-width: 469px) {
     #_main {
 	grid-template-columns: 1fr;
