@@ -11,7 +11,7 @@ import {
   YOU_ALREADY_KNOW_YOU,
 } from "../helpers/message_constants.ts";
 
-export { getAddContact, postAddContact };
+export { getAddContact, getListContact, postAddContact };
 
 const postAddContact = async (ctx: Context) => {
   const bodyValue = await ctx.request.body({ type: "form" }).value;
@@ -111,5 +111,15 @@ const addContactDB = async (
     return true;
   } catch {
     return false;
+  }
+};
+
+const getListContact = async (ctx: Context) => {
+  const hashedUsername = ctx.state.payload.usr;
+  const u = await usersCollection.findOne({ hashedUsername });
+  if (u !== undefined) {
+    ctx.response.body = JSON.stringify({
+      contactList: u.contactList,
+    });
   }
 };

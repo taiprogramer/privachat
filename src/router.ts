@@ -9,7 +9,11 @@ import {
   toHomeIfLoggedIn,
 } from "./controllers/accounts.ts";
 import { getHome } from "./controllers/home.ts";
-import { getAddContact, postAddContact } from "./controllers/contact.ts";
+import {
+  getAddContact,
+  getListContact,
+  postAddContact,
+} from "./controllers/contact.ts";
 
 const router = new Router();
 
@@ -25,6 +29,7 @@ router
   .post("/login", postLogin)
   .get("/logout", getLogout)
   .post("/add_contact", checkAuth, postAddContact)
-  .get("/add_contact", checkAuth, getAddContact);
+  .get("/add_contact", checkAuth, getAddContact)
+  .get("/list_contact", checkAuth, getListContact);
 
 export default router;
