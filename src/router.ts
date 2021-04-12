@@ -15,6 +15,8 @@ import {
   postAddContact,
 } from "./controllers/contact.ts";
 
+import { postGetSingleChat } from "./controllers/chat.ts";
+
 const router = new Router();
 
 router
@@ -30,6 +32,7 @@ router
   .get("/logout", getLogout)
   .post("/add_contact", checkAuth, postAddContact)
   .get("/add_contact", checkAuth, getAddContact)
-  .get("/list_contact", checkAuth, getListContact);
+  .get("/list_contact", checkAuth, getListContact)
+  .post("/get_single_chat", checkAuth, postGetSingleChat);
 
 export default router;

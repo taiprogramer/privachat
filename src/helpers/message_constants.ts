@@ -6,4 +6,6 @@ export const ERROR = "error",
   USER_ALREADY_EXISTS = "User already exists",
   UNKNOWN_ERROR = "Something wrong",
   USER_CREATED = "User has been created",
-  INCORRECT_USERNAME_OR_PASSWORD = "Wrong username or password.";
+  INCORRECT_USERNAME_OR_PASSWORD = "Wrong username or password",
+  USER_NOT_IN_CONTACT = "User is not in your contact",
+  NOT_HAVE_A_CHAT = "Not have a chat";
