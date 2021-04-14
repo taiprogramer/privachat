@@ -14,6 +14,7 @@ import {
   getListContact,
   postAddContact,
 } from "./controllers/contact.ts";
+import { postListMessage, postSendMessage } from "./controllers/message.ts";
 
 import { postCreateSingleChat, postGetSingleChat } from "./controllers/chat.ts";
 
@@ -34,6 +35,8 @@ router
   .get("/add_contact", checkAuth, getAddContact)
   .get("/list_contact", checkAuth, getListContact)
   .post("/get_single_chat", checkAuth, postGetSingleChat)
-  .post("/create_single_chat", checkAuth, postCreateSingleChat);
+  .post("/create_single_chat", checkAuth, postCreateSingleChat)
+  .post("/send_message", checkAuth, postSendMessage)
+  .post("/list_message", checkAuth, postListMessage);
 
 export default router;

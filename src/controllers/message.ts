@@ -1,4 +1,5 @@
 import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Bson } from "https://deno.land/x/mongo@v0.22.0/mod.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 import { responseErr } from "../helpers/response.ts";
 import {
@@ -15,7 +16,7 @@ import { chatsCollection, usersCollection } from "../models/db.ts";
 import { ContactType } from "../models/UserSchema.ts";
 import { Message } from "../models/Chat.ts";
 
-export { postSendMessage };
+export { postListMessage, postSendMessage };
 
 const postSendMessage = async (ctx: Context) => {
   const uid = ctx.state.payload.usr;
@@ -30,8 +31,8 @@ const postSendMessage = async (ctx: Context) => {
     return responseErr(ctx, INVALID_DATA);
   }
 
-  const user = await usersCollection.find({ hashedUsername: uid });
-  const friend = await usersCollection.find({ hashedUsername: friendId });
+  const user = await usersCollection.findOne({ hashedUsername: uid });
+  const friend = await usersCollection.findOne({ hashedUsername: friendId });
   if (!user || !friend) {
     return responseErr(ctx, USER_NOT_FOUND);
   }
@@ -44,7 +45,7 @@ const postSendMessage = async (ctx: Context) => {
     return responseErr(ctx, USER_NOT_IN_CONTACT);
   }
 
-  const contact: ContactType = friendContacts.find((c) =>
+  const contact: ContactType | undefined = friendContacts.find((c) =>
     c.hashedUsername === uid
   );
 
@@ -67,7 +68,7 @@ const postSendMessage = async (ctx: Context) => {
   };
 
   /* push message at the beginning of messages */
-  const updateResultObj = chatsCollection.updateOne({ _id: chatId }, {
+  const updateResultObj = await chatsCollection.updateOne({ _id: chatId }, {
     $push: {
       messages: {
         $each: [message],
@@ -82,5 +83,24 @@ const postSendMessage = async (ctx: Context) => {
   ctx.response.body = JSON.stringify({
     msg_type: SUCCESS,
     msg: MESSAGE_SENT,
+  });
+};
+
+const postListMessage = async (ctx: Context) => {
+  const bodyValue = await ctx.request.body({ type: "form" }).value;
+  const chatId = bodyValue.get("chatId") || "";
+  const chat = await chatsCollection.findOne({
+    _id: new Bson.ObjectId(chatId),
+  });
+
+  if (!chat) {
+    return responseErr(ctx, NOT_HAVE_A_CHAT);
+  }
+
+  ctx.response.body = JSON.stringify({
+    msg_type: SUCCESS,
+    msg: {
+      messages: chat.messages,
+    },
   });
 };
