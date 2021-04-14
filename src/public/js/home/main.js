@@ -1,9 +1,12 @@
+let selectedContactItem =
+  document.getElementsByClassName("contact-selected")[0];
+
 document.addEventListener("DOMContentLoaded", async () => {
   const contactListUL = document.getElementById("contact_list");
   const contactList = await getContactList();
   const contactItems = createContactItems(contactList);
   for (let i = 0; i < contactItems.length; ++i) {
-    attachOnClickEvent(contactItems[i], getSingleChat);
+    attachOnClickEvent(contactItems[i], contactItemClicked);
   }
   showContactItems(contactItems, contactListUL);
 });
@@ -58,7 +61,13 @@ const attachOnClickEvent = (contactItem, handlerFunc) => {
   contactItem.onclick = handlerFunc;
 };
 
-const getSingleChat = function () {
+const contactItemClicked = function () {
+  if (selectedContactItem === this) {
+    return;
+  }
+  selectedContactItem.classList.remove("contact-selected");
+  this.classList.add("contact-selected");
+  selectedContactItem = this;
   const body = new URLSearchParams();
   body.append("friendId", this.getAttribute("data-uid"));
   fetch("/get_single_chat", {
