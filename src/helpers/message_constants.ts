@@ -8,4 +8,6 @@ export const ERROR = "error",
   USER_CREATED = "User has been created",
   INCORRECT_USERNAME_OR_PASSWORD = "Wrong username or password",
   USER_NOT_IN_CONTACT = "User is not in your contact",
-  NOT_HAVE_A_CHAT = "Not have a chat";
+  NOT_HAVE_A_CHAT = "Not have a chat",
+  ALREADY_HAVE_A_CHAT = "Already have a chat",
+  FRIEND_DOES_NOT_KNOW_YOU = "Friend does not know you";

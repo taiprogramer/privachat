@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const contactListUL = document.getElementById("contact_list");
   const contactList = await getContactList();
   const contactItems = createContactItems(contactList);
+  for (let i = 0; i < contactItems.length; ++i) {
+    attachOnClickEvent(contactItems[i], getSingleChat);
+  }
   showContactItems(contactItems, contactListUL);
 });
 
@@ -43,4 +46,23 @@ const showContactItems = async (contactItems, ul) => {
   contactItems.forEach((item) => {
     ul.appendChild(item);
   });
+};
+
+/**
+ * Attach onclick event on single contact item (li element).
+ *
+ * @param {HTMLLIElement} contactItem
+ * @param {Function} handlerFunc
+ */
+const attachOnClickEvent = (contactItem, handlerFunc) => {
+  contactItem.onclick = handlerFunc;
+};
+
+const getSingleChat = function () {
+  const body = new URLSearchParams();
+  body.append("friendId", this.getAttribute("data-uid"));
+  fetch("/get_single_chat", {
+    body,
+    method: "POST",
+  }).then((r) => r.json()).then((j) => console.log(j));
 };
