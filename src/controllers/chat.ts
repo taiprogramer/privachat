@@ -100,8 +100,25 @@ const postCreateSingleChat = async (ctx: Context) => {
   }
 
   /* create a new chat between u and friend */
-  const insertedId = chatsCollection.insertOne({ messages: [] });
+  const insertedId = await chatsCollection.insertOne({ messages: [] });
   if (!insertedId) {
+    return responseErr(ctx, UNKNOWN_ERROR);
+  }
+
+  /* add chat id to contact field on both side */
+  const resultObj1 = await usersCollection
+    .updateOne({
+      hashedUsername: uid,
+      "contactList.hashedUsername": friendId,
+    }, { $set: { "contactList.$.chat": insertedId } });
+
+  const resultObj2 = await usersCollection
+    .updateOne({
+      hashedUsername: friendId,
+      "contactList.hashedUsername": uid,
+    }, { $set: { "contactList.$.chat": insertedId } });
+
+  if (!resultObj1.upsertedId || !resultObj2.upsertedId) {
     return responseErr(ctx, UNKNOWN_ERROR);
   }
 
