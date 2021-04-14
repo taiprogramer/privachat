@@ -21,6 +21,8 @@ import {
   USER_NOT_FOUND,
 } from "../helpers/message_constants.ts";
 
+import { responseErr } from "../helpers/response.ts";
+
 export {
   checkAuth,
   getCreateNewAccount,
@@ -47,16 +49,12 @@ const postCreateNewAccount = async (ctx: Context) => {
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
-    ctx.response.body = JSON.stringify({ msg: INVALID_DATA, msg_type: ERROR });
-    return;
+    return responseErr(ctx, INVALID_DATA);
   }
+
   /* check if user already exists. */
   if (await usersCollection.findOne({ hashedUsername }) !== undefined) {
-    ctx.response.body = JSON.stringify({
-      msg: USER_ALREADY_EXISTS,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, USER_ALREADY_EXISTS);
   }
 
   if (
@@ -67,8 +65,7 @@ const postCreateNewAccount = async (ctx: Context) => {
       encryptedPrivateKey,
     })
   ) {
-    ctx.response.body = JSON.stringify({ msg: UNKNOWN_ERROR, msg_type: ERROR });
-    return;
+    return responseErr(ctx, UNKNOWN_ERROR);
   }
   ctx.response.body = JSON.stringify({ msg: USER_CREATED, msg_type: SUCCESS });
 };
@@ -98,24 +95,16 @@ const postLogin = async (ctx: Context) => {
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
-    ctx.response.body = JSON.stringify({ msg: INVALID_DATA, msg_type: ERROR });
-    return;
+    return responseErr(ctx, INVALID_DATA);
   }
 
   const u = await usersCollection.findOne({ hashedUsername });
   if (u === undefined) {
-    ctx.response.body = JSON.stringify({
-      msg: USER_NOT_FOUND,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, USER_NOT_FOUND);
   }
+
   if (!await bcrypt.compare(authPassword, u.hashedPassword)) {
-    ctx.response.body = JSON.stringify({
-      msg: INCORRECT_USERNAME_OR_PASSWORD,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, INCORRECT_USERNAME_OR_PASSWORD);
   }
 
   const jwt = await create({ alg: "HS512", typ: "JWT" }, {

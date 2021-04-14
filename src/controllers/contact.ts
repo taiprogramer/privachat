@@ -10,6 +10,7 @@ import {
   USER_NOT_FOUND,
   YOU_ALREADY_KNOW_YOU,
 } from "../helpers/message_constants.ts";
+import { responseErr } from "../helpers/response.ts";
 
 export { getAddContact, getListContact, postAddContact };
 
@@ -23,11 +24,7 @@ const postAddContact = async (ctx: Context) => {
     !isSHAhex({ s: contactHashedUsername, numBits: 256 }) ||
     isStringEmpty(nickName)
   ) {
-    ctx.response.body = JSON.stringify({
-      msg: INVALID_DATA,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, INVALID_DATA);
   }
 
   const contact: ContactType = {
@@ -42,19 +39,11 @@ const postAddContact = async (ctx: Context) => {
     hashedUsername: contactHashedUsername,
   });
   if (user === undefined || contactUser === undefined) {
-    ctx.response.body = JSON.stringify({
-      msg: USER_NOT_FOUND,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, USER_NOT_FOUND);
   }
 
   if (user.hashedUsername === contactUser.hashedUsername) {
-    ctx.response.body = JSON.stringify({
-      msg: YOU_ALREADY_KNOW_YOU,
-      msg_type: ERROR,
-    });
-    return;
+    return responseErr(ctx, YOU_ALREADY_KNOW_YOU);
   }
 
   /* have no friend */
@@ -67,14 +56,12 @@ const postAddContact = async (ctx: Context) => {
       contactUser.hashedUsername
   );
   if (contactAlready !== undefined) {
-    ctx.response.body = JSON.stringify({
-      msg: `You already added ${
+    return responseErr(
+      ctx,
+      `You already added ${
         contactAlready.hashedUsername.substring(0, 15)
       } as ${contactAlready.nickName}.`,
-      msg_type: ERROR,
-    });
-
-    return;
+    );
   }
   if (await addContactDB(user, [...contactList, contact])) {
     ctx.response.body = JSON.stringify({
