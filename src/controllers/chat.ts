@@ -91,8 +91,8 @@ const postCreateSingleChat = async (ctx: Context) => {
 
   /* check if friend does not know u */
   const friendContacts: ContactType[] = friend.contactList || [];
-  const uInFriendContacts = friendContacts.find((c) => {
-    c.hashedUsername === uid;
+  const uInFriendContacts = friendContacts.find((c: ContactType) => {
+    return c.hashedUsername === uid;
   });
 
   if (uInFriendContacts === undefined) {
@@ -118,7 +118,7 @@ const postCreateSingleChat = async (ctx: Context) => {
       "contactList.hashedUsername": uid,
     }, { $set: { "contactList.$.chat": insertedId } });
 
-  if (!resultObj1.upsertedId || !resultObj2.upsertedId) {
+  if (!resultObj1.modifiedCount || !resultObj2.modifiedCount) {
     return responseErr(ctx, UNKNOWN_ERROR);
   }
 

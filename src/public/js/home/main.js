@@ -25,7 +25,7 @@ const getContactList = async () => {
  * @param {Array} contactList
  * @returns {Array<HTMLLIElement>}
  */
-const createContactItems = (contactList) => {
+const createContactItems = (contactList = []) => {
   let contactItems = [];
   contactList.forEach((e) => {
     const li = document.createElement("li");
