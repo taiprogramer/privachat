@@ -17,6 +17,10 @@ import {
 import { postListMessage, postSendMessage } from "./controllers/message.ts";
 
 import { postCreateSingleChat, postGetSingleChat } from "./controllers/chat.ts";
+import {
+  postGetEncryptedPrivateKey,
+  postGetPublicKey,
+} from "./controllers/key.ts";
 
 const router = new Router();
 
@@ -37,6 +41,8 @@ router
   .post("/get_single_chat", checkAuth, postGetSingleChat)
   .post("/create_single_chat", checkAuth, postCreateSingleChat)
   .post("/send_message", checkAuth, postSendMessage)
-  .post("/list_message", checkAuth, postListMessage);
+  .post("/list_message", checkAuth, postListMessage)
+  .post("/get_public_key", postGetPublicKey)
+  .post("/get_encrypted_private_key", checkAuth, postGetEncryptedPrivateKey);
 
 export default router;
