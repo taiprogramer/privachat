@@ -1,5 +1,5 @@
 <header>
-    <h1><%= hashedUsername.substring(0, 15) %></h1>
+    <h1 id="user" data-uid="<%= hashedUsername %>"><%= hashedUsername.substring(0, 15) %></h1>
 </header>
 <a href="/logout" class="btn" id="btn_logout">Logout</a>
 <main id="_main">
@@ -37,6 +37,7 @@
 		<span class="message-timestamp">22:31</span>
 	    </li>
 	</ul>
-	<input type="text" placeholder="Enter to send, Shift + Enter to add new line"> 
+	<input type="text" placeholder="Enter to send, Shift + Enter to add new line"
+	id="tf_message"> 
     </section>
 </main>

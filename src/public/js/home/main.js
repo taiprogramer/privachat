@@ -4,13 +4,28 @@ import {
   showContactItems,
 } from "./contact.js";
 import { getChatId, makeNewChat } from "./chat.js";
-import { listMessage } from "./message.js";
+import { encryptMessage, listMessage } from "./message.js";
+import {
+  correctPrivateKey,
+  correctPublicKey,
+  getEncryptedPrivateKey,
+  getPublicKey,
+} from "./key.js";
+import { SUCCESS } from "../module/constants.js";
 
 let selectedContactItem =
   document.getElementsByClassName("contact-selected")[0];
 const spanFriendNickname = document.getElementById("friend_nickname");
 const ulMessages = document.getElementById("messages");
+const tfMessage = document.getElementById("tf_message");
+const h1User = document.getElementById("user");
 
+/*
+ ____  _____    _    ____  __  __ _____ 
+|  _ \| ____|  / \  |  _ \|  \/  | ____|
+| |_) |  _|   / _ \ | | | | |\/| |  _|  
+|  _ <| |___ / ___ \| |_| | |  | | |___ 
+|_| \_\_____/_/   \_\____/|_|  |_|_____| */
 document.addEventListener("DOMContentLoaded", async () => {
   const contactListUL = document.getElementById("contact_list");
   const contactItems = createContactItems(await getContactList());
@@ -18,6 +33,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     contactItems[i].onclick = contactItemClicked;
   }
   showContactItems(contactItems, contactListUL);
+  tfMessage.onkeyup = (e) => {
+    if (e.key === "Enter") {
+      tfMessageEnter();
+    }
+  };
 });
 
 const contactItemClicked = function () {
@@ -42,11 +62,11 @@ const startChat = async (friendId) => {
   const chatId = await getChatId(friendId);
   if (!chatId) {
     const json = await makeNewChat(friendId);
-    console.log(json);
+    ulMessages.innerText = json.msg;
     return;
   }
   const messages = await listMessage(chatId) || [];
-  console.log(messages);
+  ulMessages.innerText = "";
   messages.forEach((message) => {
     const li = document.createElement("li");
     const bSender = document.createElement("b");
@@ -72,6 +92,32 @@ const startChat = async (friendId) => {
     li.appendChild(bSender);
     li.appendChild(pContent);
     li.appendChild(spanTimestamp);
-    ulMessages.appendChild(li);
+    /* simulate prependChild - Thanks Denis Vlasov */
+    /* http://www.denisvlasov.net/129/javascript-prependchild/ */
+    ulMessages.insertBefore(li, ulMessages.firstChild);
+  });
+  ulMessages.scrollTo(0, ulMessages.scrollHeight);
+};
+
+const tfMessageEnter = async () => {
+  const userPublicKey = await getPublicKey(
+    selectedContactItem.getAttribute("data-uid"),
+  );
+  const friendPublicKey = await getPublicKey(h1User.getAttribute("data-uid"));
+  const encryptedPGPMessage = await encryptMessage(
+    tfMessage.value,
+    userPublicKey,
+    friendPublicKey,
+  );
+  const body = new URLSearchParams();
+  body.append("friendId", selectedContactItem.getAttribute("data-uid"));
+  body.append("encryptedContent", encryptedPGPMessage);
+  fetch("/send_message", {
+    body,
+    method: "POST",
+  }).then((r) => r.json()).then((j) => {
+    if (j.msg_type === SUCCESS) {
+      tfMessage.value = "";
+    }
   });
 };

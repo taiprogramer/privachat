@@ -85,7 +85,7 @@ hr {
 #messages {
     display: flex;
     flex-direction: column;
-    max-height: 70%;
+    height: 70%;
     overflow: hidden scroll;
     word-wrap: break-word;
     padding: 8px;
@@ -108,6 +108,7 @@ hr {
 
 .message p {
     text-align: left;
+    max-width: 100%;
     width: fit-content;
     padding: 8px;
     border-radius: 8px;
