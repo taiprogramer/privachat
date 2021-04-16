@@ -19,6 +19,8 @@ const spanFriendNickname = document.getElementById("friend_nickname");
 const ulMessages = document.getElementById("messages");
 const tfMessage = document.getElementById("tf_message");
 const h1User = document.getElementById("user");
+/* lock li element on clicking when messages are loading */
+let lockContactItems = false;
 
 /*
  ____  _____    _    ____  __  __ _____ 
@@ -40,8 +42,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 });
 
-const contactItemClicked = function () {
-  if (selectedContactItem === this) {
+const contactItemClicked = async function () {
+  if (selectedContactItem === this || lockContactItems) {
     return;
   }
   selectedContactItem.classList.remove("contact-selected");
@@ -50,7 +52,9 @@ const contactItemClicked = function () {
   spanFriendNickname.innerText = selectedContactItem.getAttribute(
     "data-nickname",
   );
-  startChat(selectedContactItem.getAttribute("data-uid"));
+  lockContactItems = true;
+  await startChat(selectedContactItem.getAttribute("data-uid"));
+  lockContactItems = false;
 };
 
 /**

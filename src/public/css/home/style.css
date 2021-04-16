@@ -91,6 +91,8 @@ hr {
     padding: 8px;
 }
 
+#messages::-webkit-scrollbar { width: 0 !important }
+
 .message {
     max-width: 50%;
 }
