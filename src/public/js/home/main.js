@@ -4,7 +4,7 @@ import {
   showContactItems,
 } from "./contact.js";
 import { getChatId, makeNewChat } from "./chat.js";
-import { encryptMessage, listMessage } from "./message.js";
+import { decryptMessage, encryptMessage, listMessage } from "./message.js";
 import {
   correctPrivateKey,
   correctPublicKey,
@@ -67,7 +67,7 @@ const startChat = async (friendId) => {
   }
   const messages = await listMessage(chatId) || [];
   ulMessages.innerText = "";
-  messages.forEach((message) => {
+  for (const message of messages) {
     const li = document.createElement("li");
     const bSender = document.createElement("b");
     const pContent = document.createElement("p");
@@ -80,8 +80,16 @@ const startChat = async (friendId) => {
     pContent.classList.add("message-content");
     spanTimestamp.classList.add("message-timestamp");
     bSender.innerText = "Me";
-    pContent.innerText = message.encryptedContent;
-    spanTimestamp.innerText = message.timestamp;
+    const msg = await decryptMessage(
+      message.encryptedContent,
+      await getEncryptedPrivateKey(),
+      sessionStorage.getItem("local_password"),
+    );
+    pContent.innerText = msg;
+    const date = new Date(message.timestamp);
+    spanTimestamp.innerText = `${date.getHours()}:${
+      date.getMinutes() < 10 ? "0" : ""
+    }${date.getMinutes()}`;
 
     if (message.from === friendId) {
       li.classList.remove("message-own");
@@ -95,8 +103,8 @@ const startChat = async (friendId) => {
     /* simulate prependChild - Thanks Denis Vlasov */
     /* http://www.denisvlasov.net/129/javascript-prependchild/ */
     ulMessages.insertBefore(li, ulMessages.firstChild);
-  });
-  ulMessages.scrollTo(0, ulMessages.scrollHeight);
+    ulMessages.scrollTo(0, ulMessages.scrollHeight);
+  }
 };
 
 const tfMessageEnter = async () => {

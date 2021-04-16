@@ -66,7 +66,7 @@ const decryptMessage = async (
   const message = await openpgp.readMessage({
     armoredMessage: encryptedPGPMessage,
   });
-  const { decrypted } = await openpgp.decrypt({
+  const { data: decrypted } = await openpgp.decrypt({
     message,
     privateKeys: privateKey,
   });
