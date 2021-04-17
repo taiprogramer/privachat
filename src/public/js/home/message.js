@@ -1,5 +1,4 @@
 import { SUCCESS } from "../module/constants.js";
-import { correctPrivateKey, correctPublicKey } from "./key.js";
 
 export { decryptMessage, encryptMessage, listMessage };
 
@@ -24,22 +23,16 @@ const listMessage = async (chatId) => {
 /**
  * Encrypt message for both sender & receiver
  * @param {string} textMsg
- * @param {string} unformatSenderPub - unformat sender public key
- * @param {string} unformatReceiverPub - unformat receiver public key
+ * @param {openpgp.Key} senderPub - sender public key
+ * @param {openpgp.Key} receiverPub - receiver public key
  * @returns {Promise<string>} encryptedPGPMessage
  */
 const encryptMessage = async (
   textMsg,
-  unformatSenderPub,
-  unformatReceiverPub,
+  senderPub,
+  receiverPub,
 ) => {
-  const publicKeysArmored = [
-    correctPublicKey(unformatSenderPub),
-    correctPublicKey(unformatReceiverPub),
-  ];
-  const publicKeys = await Promise.all(
-    publicKeysArmored.map((armoredKey) => openpgp.readKey({ armoredKey })),
-  );
+  const publicKeys = [senderPub, receiverPub];
   const message = await openpgp.Message.fromText(textMsg);
   const encryptedPGPMessage = await openpgp.encrypt({
     message,
@@ -51,18 +44,13 @@ const encryptMessage = async (
 /**
  * Decrypt message
  * @param {string} encryptedPGPMessage - pgp message ascii
- * @param {string} unformatPrivateKey
- * @param {string} localPassword - password use for decrypting private key
+ * @param {openpgp.Key} privateKey
  * @return {Promise<string>} textMsg
  */
 const decryptMessage = async (
   encryptedPGPMessage,
-  unformatPrivateKey,
-  localPassword,
+  privateKey,
 ) => {
-  const privateKeyArmored = correctPrivateKey(unformatPrivateKey);
-  const privateKey = await openpgp.readKey({ armoredKey: privateKeyArmored });
-  await privateKey.decrypt(localPassword);
   const message = await openpgp.readMessage({
     armoredMessage: encryptedPGPMessage,
   });

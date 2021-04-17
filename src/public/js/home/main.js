@@ -1,8 +1,4 @@
-import {
-  createContactItems,
-  getContactList,
-  showContactItems,
-} from "./contact.js";
+import { createContactItems, getContactList } from "./contact.js";
 import { getChatId, makeNewChat } from "./chat.js";
 import { decryptMessage, encryptMessage, listMessage } from "./message.js";
 import {
@@ -17,10 +13,24 @@ let selectedContactItem =
   document.getElementsByClassName("contact-selected")[0];
 const spanFriendNickname = document.getElementById("friend_nickname");
 const ulMessages = document.getElementById("messages");
+const ulContactList = document.getElementById("contact_list");
 const tfMessage = document.getElementById("tf_message");
 const h1User = document.getElementById("user");
 /* lock li element on clicking when messages are loading */
 let lockContactItems = false;
+let userPrivateKey = undefined; // type: openpgp.Key
+let userPublicKey = undefined; // type: openpgp.Key
+
+/*
+contacts: HashMap
+{
+    uid(SHA256): {
+	public_key: openpgp.Key,
+	chat: [HTMLLIElement]
+    }
+}
+*/
+const contacts = {};
 
 /*
  ____  _____    _    ____  __  __ _____ 
@@ -29,17 +39,34 @@ let lockContactItems = false;
 |  _ <| |___ / ___ \| |_| | |  | | |___ 
 |_| \_\_____/_/   \_\____/|_|  |_|_____| */
 document.addEventListener("DOMContentLoaded", async () => {
-  const contactListUL = document.getElementById("contact_list");
   const contactItems = createContactItems(await getContactList());
   for (let i = 0; i < contactItems.length; ++i) {
     contactItems[i].onclick = contactItemClicked;
+    ulContactList.appendChild(contactItems[i]);
+    const uid = contactItems[i].getAttribute("data-uid");
+    contacts[uid] = {
+      public_key: await openpgp.readKey({
+        armoredKey: correctPublicKey(await getPublicKey(uid)),
+      }),
+      messages: undefined,
+    };
   }
-  showContactItems(contactItems, contactListUL);
+
   tfMessage.onkeyup = (e) => {
     if (e.key === "Enter") {
       tfMessageEnter();
     }
   };
+  /* set up user info */
+  userPrivateKey = await openpgp.readKey({
+    armoredKey: correctPrivateKey(await getEncryptedPrivateKey()),
+  });
+  await userPrivateKey.decrypt(sessionStorage.getItem("local_password"));
+  userPublicKey = await openpgp.readKey({
+    armoredKey: correctPublicKey(
+      await getPublicKey(h1User.getAttribute("data-uid")),
+    ),
+  });
 });
 
 const contactItemClicked = async function () {
@@ -63,6 +90,14 @@ const contactItemClicked = async function () {
  * @param {string} friendId
  */
 const startChat = async (friendId) => {
+  if (contacts[friendId].messages) {
+    ulMessages.innerText = "";
+    for (const message of contacts[friendId].messages) {
+      ulMessages.insertBefore(message, ulMessages.firstChild);
+      ulMessages.scrollTo(0, ulMessages.scrollHeight);
+    }
+    return;
+  }
   const chatId = await getChatId(friendId);
   if (!chatId) {
     const json = await makeNewChat(friendId);
@@ -71,6 +106,8 @@ const startChat = async (friendId) => {
   }
   const messages = await listMessage(chatId) || [];
   ulMessages.innerText = "";
+
+  contacts[friendId].messages = [];
   for (const message of messages) {
     const li = document.createElement("li");
     const bSender = document.createElement("b");
@@ -86,8 +123,7 @@ const startChat = async (friendId) => {
     bSender.innerText = "Me";
     const msg = await decryptMessage(
       message.encryptedContent,
-      await getEncryptedPrivateKey(),
-      sessionStorage.getItem("local_password"),
+      userPrivateKey,
     );
     pContent.innerText = msg;
     const date = new Date(message.timestamp);
@@ -104,6 +140,7 @@ const startChat = async (friendId) => {
     li.appendChild(bSender);
     li.appendChild(pContent);
     li.appendChild(spanTimestamp);
+    contacts[friendId].messages.push(li);
     /* simulate prependChild - Thanks Denis Vlasov */
     /* http://www.denisvlasov.net/129/javascript-prependchild/ */
     ulMessages.insertBefore(li, ulMessages.firstChild);
@@ -112,14 +149,11 @@ const startChat = async (friendId) => {
 };
 
 const tfMessageEnter = async () => {
-  const userPublicKey = await getPublicKey(
-    selectedContactItem.getAttribute("data-uid"),
-  );
-  const friendPublicKey = await getPublicKey(h1User.getAttribute("data-uid"));
+  const friendId = selectedContactItem.getAttribute("data-uid");
   const encryptedPGPMessage = await encryptMessage(
     tfMessage.value,
     userPublicKey,
-    friendPublicKey,
+    contacts[friendId].public_key,
   );
   const body = new URLSearchParams();
   body.append("friendId", selectedContactItem.getAttribute("data-uid"));

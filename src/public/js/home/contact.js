@@ -1,4 +1,4 @@
-export { createContactItems, getContactList, showContactItems };
+export { createContactItems, getContactList };
 
 /**
  * Get list of contact
@@ -28,15 +28,4 @@ const createContactItems = (contactList = []) => {
     contactItems.push(li);
   });
   return contactItems;
-};
-
-/**
- * Show contact items (list of li elements) to DOM.
- * @param {HTMLLIElement} contactItems
- * @param {HTMLUListElement} ul
- */
-const showContactItems = async (contactItems, ul) => {
-  contactItems.forEach((item) => {
-    ul.appendChild(item);
-  });
 };
