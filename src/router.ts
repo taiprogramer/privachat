@@ -21,6 +21,7 @@ import {
   postGetEncryptedPrivateKey,
   postGetPublicKey,
 } from "./controllers/key.ts";
+import { ws } from "./controllers/ws.ts";
 
 const router = new Router();
 
@@ -43,6 +44,7 @@ router
   .post("/send_message", checkAuth, postSendMessage)
   .post("/list_message", checkAuth, postListMessage)
   .post("/get_public_key", postGetPublicKey)
-  .post("/get_encrypted_private_key", checkAuth, postGetEncryptedPrivateKey);
+  .post("/get_encrypted_private_key", checkAuth, postGetEncryptedPrivateKey)
+  .get("/ws", checkAuth, ws);
 
 export default router;

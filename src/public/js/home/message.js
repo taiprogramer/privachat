@@ -1,6 +1,6 @@
 import { SUCCESS } from "../module/constants.js";
 
-export { decryptMessage, encryptMessage, listMessage };
+export { createMessageItem, decryptMessage, encryptMessage, listMessage };
 
 /**
  * List historical messages
@@ -59,4 +59,42 @@ const decryptMessage = async (
     privateKeys: privateKey,
   });
   return decrypted;
+};
+
+/**
+ * Create message item (li element)
+ * @param {string} textMsg - Message after decrypt
+ * @param {Date} timestamp
+ * @param {string} sender - nickname
+ * @returns {HTMLLIElement} messageItem
+ */
+const createMessageItem = (textMsg, timestamp, sender = "Me") => {
+  const li = document.createElement("li");
+  const bSender = document.createElement("b");
+  const pContent = document.createElement("p");
+  const spanTimestamp = document.createElement("span");
+
+  // general
+  li.classList.add("message");
+  li.classList.add("message-own");
+  bSender.classList.add("message-sender");
+  pContent.classList.add("message-content");
+  spanTimestamp.classList.add("message-timestamp");
+  pContent.innerText = textMsg;
+
+  const date = new Date(timestamp);
+  spanTimestamp.innerText = `${date.getHours()}:${
+    date.getMinutes() < 10 ? "0" : ""
+  }${date.getMinutes()}`;
+
+  if (sender !== "Me") {
+    li.classList.remove("message-own");
+    li.classList.add("message-friend");
+    bSender.innerText = sender;
+  }
+
+  li.appendChild(bSender);
+  li.appendChild(pContent);
+  li.appendChild(spanTimestamp);
+  return li;
 };

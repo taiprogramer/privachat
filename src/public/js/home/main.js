@@ -1,6 +1,11 @@
 import { createContactItems, getContactList } from "./contact.js";
 import { getChatId, makeNewChat } from "./chat.js";
-import { decryptMessage, encryptMessage, listMessage } from "./message.js";
+import {
+  createMessageItem,
+  decryptMessage,
+  encryptMessage,
+  listMessage,
+} from "./message.js";
 import {
   correctPrivateKey,
   correctPublicKey,
@@ -25,12 +30,42 @@ let userPublicKey = undefined; // type: openpgp.Key
 contacts: HashMap
 {
     uid(SHA256): {
+	nickname: string,
 	public_key: openpgp.Key,
-	chat: [HTMLLIElement]
+	messages: [HTMLLIElement]
     }
 }
 */
 const contacts = {};
+const ws = new WebSocket(`ws://${document.location.host}/ws`);
+
+ws.onmessage = async ({ data }) => {
+  const { from: friendId } = JSON.parse(data);
+  const chatId = await getChatId(friendId);
+  const messages = await listMessage(chatId) || [];
+  if (messages.length < 1) {
+    return;
+  }
+
+  const textMsg = await decryptMessage(
+    messages[0].encryptedContent,
+    userPrivateKey,
+  );
+  const li = createMessageItem(
+    textMsg,
+    messages[0].timestamp,
+    contacts[friendId].nickname,
+  );
+
+  if (contacts[friendId].messages) {
+    contacts[friendId].messages.unshift(li);
+  }
+
+  if (selectedContactItem.getAttribute("data-uid") === friendId) {
+    ulMessages.appendChild(li);
+    ulMessages.scrollTo(0, ulMessages.scrollHeight);
+  }
+};
 
 /*
  ____  _____    _    ____  __  __ _____ 
@@ -45,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ulContactList.appendChild(contactItems[i]);
     const uid = contactItems[i].getAttribute("data-uid");
     contacts[uid] = {
+      nickname: contactItems[i].getAttribute("data-nickname"),
       public_key: await openpgp.readKey({
         armoredKey: correctPublicKey(await getPublicKey(uid)),
       }),
@@ -109,37 +145,14 @@ const startChat = async (friendId) => {
 
   contacts[friendId].messages = [];
   for (const message of messages) {
-    const li = document.createElement("li");
-    const bSender = document.createElement("b");
-    const pContent = document.createElement("p");
-    const spanTimestamp = document.createElement("span");
-
-    // general
-    li.classList.add("message");
-    li.classList.add("message-own");
-    bSender.classList.add("message-sender");
-    pContent.classList.add("message-content");
-    spanTimestamp.classList.add("message-timestamp");
-    bSender.innerText = "Me";
-    const msg = await decryptMessage(
+    const textMsg = await decryptMessage(
       message.encryptedContent,
       userPrivateKey,
     );
-    pContent.innerText = msg;
-    const date = new Date(message.timestamp);
-    spanTimestamp.innerText = `${date.getHours()}:${
-      date.getMinutes() < 10 ? "0" : ""
-    }${date.getMinutes()}`;
-
-    if (message.from === friendId) {
-      li.classList.remove("message-own");
-      li.classList.add("message-friend");
-      bSender.innerText = selectedContactItem.getAttribute("data-nickname");
-    }
-
-    li.appendChild(bSender);
-    li.appendChild(pContent);
-    li.appendChild(spanTimestamp);
+    const sender = message.from === friendId
+      ? contacts[friendId].nickname
+      : "Me";
+    const li = createMessageItem(textMsg, message.timestamp, sender);
     contacts[friendId].messages.push(li);
     /* simulate prependChild - Thanks Denis Vlasov */
     /* http://www.denisvlasov.net/129/javascript-prependchild/ */
@@ -155,6 +168,7 @@ const tfMessageEnter = async () => {
     userPublicKey,
     contacts[friendId].public_key,
   );
+  const li = createMessageItem(tfMessage.value, new Date(), "Me");
   const body = new URLSearchParams();
   body.append("friendId", selectedContactItem.getAttribute("data-uid"));
   body.append("encryptedContent", encryptedPGPMessage);
@@ -164,6 +178,14 @@ const tfMessageEnter = async () => {
   }).then((r) => r.json()).then((j) => {
     if (j.msg_type === SUCCESS) {
       tfMessage.value = "";
+      ulMessages.appendChild(li);
+      ulMessages.scrollTo(0, ulMessages.scrollHeight);
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          from: h1User.getAttribute("data-uid"),
+          to: friendId,
+        }));
+      }
     }
   });
 };
