@@ -1,4 +1,4 @@
-# Privachat - Source Code Structure
+# Privachat: Source Code Structure
 
 ```txt
 .
@@ -10,10 +10,3 @@
     ├── public ;static files
     └── views ;user interface
 ```
-
-## Controllers
-
-### Accounts
-
-- Create new account
-- Login
