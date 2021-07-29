@@ -3,7 +3,7 @@ import { SUCCESS } from "../module/constants.js";
 export { getChatId, makeNewChat };
 
 /**
- * Get chat 
+ * Get chat
  * @param {string} friendId
  * @returns {string | undefined} chatId
  */

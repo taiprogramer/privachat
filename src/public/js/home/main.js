@@ -68,10 +68,10 @@ ws.onmessage = async ({ data }) => {
 };
 
 /*
- ____  _____    _    ____  __  __ _____ 
+ ____  _____    _    ____  __  __ _____
 |  _ \| ____|  / \  |  _ \|  \/  | ____|
-| |_) |  _|   / _ \ | | | | |\/| |  _|  
-|  _ <| |___ / ___ \| |_| | |  | | |___ 
+| |_) |  _|   / _ \ | | | | |\/| |  _|
+|  _ <| |___ / ___ \| |_| | |  | | |___
 |_| \_\_____/_/   \_\____/|_|  |_|_____| */
 document.addEventListener("DOMContentLoaded", async () => {
   const contactItems = createContactItems(await getContactList());
