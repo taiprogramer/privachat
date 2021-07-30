@@ -8,3 +8,8 @@ export {
 export { Status } from "https://deno.land/std@0.103.0/http/http_status.ts";
 export { Bson, MongoClient } from "https://deno.land/x/mongo@v0.22.0/mod.ts";
 export * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+export {
+  create,
+  getNumericDate,
+  verify,
+} from "https://deno.land/x/djwt@v2.2/mod.ts";
