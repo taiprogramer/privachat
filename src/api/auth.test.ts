@@ -1,10 +1,10 @@
 import { authRouter as router } from "./auth.ts";
-import { Rhum, SuperDeno, superoak } from "../test_deps.ts";
+import { Rhum, Stubbed, SuperDeno, superoak } from "../test_deps.ts";
 import {
   Application,
-  bcrypt as orgBcrypt,
   create,
   getNumericDate,
+  scrypt as orgScrypt,
   Status,
 } from "../deps.ts";
 import {
@@ -30,9 +30,10 @@ const wrongUserCredential = {
 00000000000000000000000000000000000000000000000000000000000000000",
 };
 
-export let User = Rhum.stubbed(Object.create(orgUser));
-export let bcrypt = Rhum.stubbed(Object.create(orgBcrypt));
-export let jwt = Rhum.stubbed(Object.create({ create, getNumericDate }));
+const orgJwt = { create, getNumericDate };
+export let User: Stubbed<typeof orgUser>;
+export let jwt: Stubbed<typeof orgJwt>;
+export let scrypt: Stubbed<typeof orgScrypt>;
 
 Rhum.testPlan("auth.test.ts", () => {
   let request: SuperDeno;
@@ -44,9 +45,8 @@ Rhum.testPlan("auth.test.ts", () => {
       User = Rhum.stubbed(Object.create(orgUser));
       User.stub("findOne", () => undefined); // assume user is not exist
       User.stub("insertOne", () => true); // assume insert success
-      bcrypt.stub("hash", () => {
-        return "$2a$10$HCGA1/d0m3s39hnMaZBZZOWYNiAMOsr70lf93rm6PMHFpnTCG6Wdi";
-      });
+      scrypt = Rhum.stubbed(Object.create(orgScrypt));
+      scrypt.stub("hash", () => "foo");
       await request.post("/new")
         .set("Content-Type", "application/json")
         .send({ ...userCredential, pubKey: "[pub]", priKey: "[pri]" })
@@ -78,9 +78,9 @@ Rhum.testPlan("auth.test.ts", () => {
     Rhum.testCase("request with valid credential", async () => {
       User = Rhum.stubbed(Object.create(orgUser));
       User.stub("findOne", () => true);
-      bcrypt = Rhum.stubbed(Object.create(orgBcrypt));
-      bcrypt.stub("compare", () => true);
-      jwt = Rhum.stubbed(Object.create(jwt));
+      scrypt = Rhum.stubbed(Object.create(orgScrypt));
+      scrypt.stub("verify", () => true);
+      jwt = Rhum.stubbed(Object.create(orgJwt));
       jwt.stub("create", () => "[jwt]");
       jwt.stub("getNumericDate", () => "foo");
       await request.post("/login")

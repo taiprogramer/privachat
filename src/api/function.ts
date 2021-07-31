@@ -1,8 +1,8 @@
 import {
-  bcrypt as orgBcrypt,
   Context,
   create,
   getNumericDate,
+  scrypt as orgScrypt,
   Status,
 } from "../deps.ts";
 import {
@@ -18,9 +18,9 @@ import { User as orgUser } from "../models/database.ts";
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 
 export const newAsPost = async (ctx: Context) => {
-  const { User, bcrypt } = Deno.env.get("TESTING")
+  const { User, scrypt } = Deno.env.get("TESTING")
     ? await import("./auth.test.ts")
-    : { User: orgUser, bcrypt: orgBcrypt };
+    : { User: orgUser, scrypt: orgScrypt };
 
   const body = await ctx.request.body();
 
@@ -45,7 +45,7 @@ export const newAsPost = async (ctx: Context) => {
   if (
     await User.insertOne({
       uid,
-      pass: await bcrypt.hash(pass),
+      pass: await scrypt.hash(pass),
       pubKey,
       priKey,
     }) ===
@@ -57,9 +57,9 @@ export const newAsPost = async (ctx: Context) => {
 };
 
 export const loginAsPost = async (ctx: Context) => {
-  const { User, bcrypt, jwt } = Deno.env.get("TESTING")
+  const { User, scrypt, jwt } = Deno.env.get("TESTING")
     ? await import("./auth.test.ts")
-    : { User: orgUser, bcrypt: orgBcrypt, jwt: { getNumericDate, create } };
+    : { User: orgUser, scrypt: orgScrypt, jwt: { getNumericDate, create } };
   const body = await ctx.request.body();
 
   if (body.type !== "json") {
@@ -80,7 +80,7 @@ export const loginAsPost = async (ctx: Context) => {
     return responseErr(ctx, Status.Forbidden, INCORRECT_USERNAME_OR_PASSWORD);
   }
 
-  if (!(await bcrypt.compare(pass, user.pass))) {
+  if (!(await scrypt.verify(pass, user.pass))) {
     return responseErr(ctx, Status.Forbidden, INCORRECT_USERNAME_OR_PASSWORD);
   }
 
