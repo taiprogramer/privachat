@@ -7,10 +7,18 @@ authRouter.post("/login", loginAsPost);
 
 export { authRouter };
 
-import { Context, create, getNumericDate, scrypt, Status } from "../deps.ts";
+import {
+  Context,
+  create,
+  getNumericDate,
+  scrypt,
+  Status,
+  verify,
+} from "../deps.ts";
 import {
   INCORRECT_USERNAME_OR_PASSWORD,
   INVALID_DATA,
+  INVALID_TOKEN,
   UNKNOWN_ERROR,
   USER_ALREADY_EXISTS,
   USER_CREATED,
@@ -82,3 +90,15 @@ async function loginAsPost(ctx: Context) {
 
   responseSuc(ctx, Status.OK, { accessToken });
 }
+
+// check auth middleware
+export const checkAuth = async (ctx: Context, next: any) => {
+  const bearer = ctx.request.headers.get("Authorization") || "";
+  const token = bearer.split(" ")[1] || "foo";
+  try {
+    ctx.state.payload = await verify(token, JWT_SECRET, "HS512");
+    await next();
+  } catch {
+    responseErr(ctx, Status.Unauthorized, INVALID_TOKEN);
+  }
+};

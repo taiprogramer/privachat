@@ -11,4 +11,5 @@ export const ERROR = "error",
   NOT_HAVE_A_CHAT = "Not have a chat",
   ALREADY_HAVE_A_CHAT = "Already have a chat",
   FRIEND_DOES_NOT_KNOW_YOU = "Friend does not know you",
-  MESSAGE_SENT = "Message sent";
+  MESSAGE_SENT = "Message sent",
+  INVALID_TOKEN = "Invalid token";
