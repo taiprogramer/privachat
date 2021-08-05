@@ -13,3 +13,4 @@ export {
   verify,
 } from "https://deno.land/x/djwt@v2.2/mod.ts";
 export * as scrypt from "https://raw.githubusercontent.com/denorg/scrypt/v2.1.0/mod.ts";
+export type { Payload } from "https://deno.land/x/djwt@v2.2/mod.ts";

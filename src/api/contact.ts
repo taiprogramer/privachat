@@ -1,9 +1,10 @@
 import { Router } from "../deps.ts";
+import { checkAuth } from "./auth.ts";
 
 const contactRouter = new Router();
 
-contactRouter.post("/add", addAsPost);
-contactRouter.post("/list", listAsGet);
+contactRouter.post("/add", checkAuth, addAsPost);
+contactRouter.get("/list", checkAuth, listAsGet);
 contactRouter.post("/delete", deleteAsPost);
 contactRouter.post("/edit", editAsPost);
 
@@ -27,7 +28,8 @@ async function addAsPost(ctx: Context) {
     return responseErr(ctx, Status.BadRequest, INVALID_DATA);
   }
 
-  const friendship: IFriendship = await body.value;
+  const { uid } = ctx.state.payload;
+  const friendship: IFriendship = { ...(await body.value), uid };
 
   if (
     !isSHAhex({ s: friendship.uid, numBits: 256 }) ||
@@ -48,6 +50,8 @@ async function addAsPost(ctx: Context) {
 }
 
 async function listAsGet(ctx: Context) {
+  const { uid } = ctx.state.payload;
+  responseSuc(ctx, Status.OK, { friends: await db.friendship.find({ uid }) });
 }
 
 async function deleteAsPost(ctx: Context) {

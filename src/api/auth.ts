@@ -7,14 +7,7 @@ authRouter.post("/login", loginAsPost);
 
 export { authRouter };
 
-import {
-  Context,
-  create,
-  getNumericDate,
-  scrypt,
-  Status,
-  verify,
-} from "../deps.ts";
+import { Context, scrypt, Status, verify } from "../deps.ts";
 import {
   INCORRECT_USERNAME_OR_PASSWORD,
   INVALID_DATA,
@@ -26,7 +19,7 @@ import {
 import { responseErr, responseSuc } from "./response.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 import { db } from "./datastore.ts";
-import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
+import { createJwt, verifyJwt } from "../helpers/jwt.ts";
 
 async function newAsPost(ctx: Context) {
   const body = await ctx.request.body();
@@ -83,10 +76,7 @@ async function loginAsPost(ctx: Context) {
   }
 
   // generate jwt
-  const accessToken = await create({ alg: "HS512", typ: "JWT" }, {
-    uid,
-    exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
-  }, JWT_SECRET);
+  const accessToken = await createJwt({ uid });
 
   responseSuc(ctx, Status.OK, { accessToken });
 }
@@ -96,7 +86,7 @@ export const checkAuth = async (ctx: Context, next: any) => {
   const bearer = ctx.request.headers.get("Authorization") || "";
   const token = bearer.split(" ")[1] || "foo";
   try {
-    ctx.state.payload = await verify(token, JWT_SECRET, "HS512");
+    ctx.state.payload = await verifyJwt(token);
     await next();
   } catch {
     responseErr(ctx, Status.Unauthorized, INVALID_TOKEN);

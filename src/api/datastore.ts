@@ -3,7 +3,7 @@ import {
   user as dbUser,
 } from "../models/database.ts";
 import { IFriendship, IUser } from "../models/schema.ts";
-import { createHash } from "../test_deps.ts";
+import { createHash, v4 } from "../test_deps.ts";
 import { scrypt } from "../deps.ts";
 
 let users: Array<IUser> = [];
@@ -37,13 +37,19 @@ const friendship = {
     }
     return await dbFriendship.insertOne(fs);
   },
+  find: async ({ uid }: { uid: string }): Promise<any | undefined> => {
+    if (isTesting) {
+      return friendships.filter((f: IFriendship) => f.uid === uid);
+    }
+    return dbFriendship.find({ uid }).toArray();
+  },
 };
 
 export const generateUserCredential = (): IUser => {
-  const milliseconds = new Date().getMilliseconds().toString();
+  const uuid = crypto.randomUUID();
   return {
-    uid: createHash("sha256").update(milliseconds).toString(),
-    pass: createHash("sha512").update(milliseconds).toString(),
+    uid: createHash("sha256").update(uuid).toString(),
+    pass: createHash("sha512").update(uuid).toString(),
     pubKey: "foo",
     priKey: "bar",
   };
