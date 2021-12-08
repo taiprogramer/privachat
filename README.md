@@ -17,3 +17,10 @@ cd src && deno run --allow-net --allow-read --allow-env --unstable main.ts
 ```
 
 Read the [documentation](./doc/README.md)
+
+## License
+
+The software is licensed under MIT (see [LICENSE](./LICENSE)) and uses third
+party libraries that are distributed under their own terms (see
+[LICENSE-3RD-PART](./LICENSE-3RD-PARTY)).
+
