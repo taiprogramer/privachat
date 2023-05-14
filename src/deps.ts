@@ -4,9 +4,9 @@ export {
   Context,
   Router,
   send,
-} from "https://deno.land/x/oak@v8.0.0/mod.ts";
+} from "https://deno.land/x/oak@v12.4.0/mod.ts";
 export { Status } from "https://deno.land/std@0.103.0/http/http_status.ts";
-export { Bson, MongoClient } from "https://deno.land/x/mongo@v0.22.0/mod.ts";
+export { Bson, MongoClient } from "https://deno.land/x/mongo@v0.31.0/mod.ts";
 export {
   create,
   getNumericDate,

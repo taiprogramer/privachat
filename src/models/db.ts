@@ -1,4 +1,4 @@
-import { MongoClient } from "https://deno.land/x/mongo@v0.22.0/mod.ts";
+import { MongoClient } from "https://deno.land/x/mongo@v0.31.2/mod.ts";
 import { UserSchema } from "./UserSchema.ts";
 import { Chat } from "./Chat.ts";
 import {
