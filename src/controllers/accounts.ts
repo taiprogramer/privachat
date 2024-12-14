@@ -3,15 +3,10 @@ import { renderFileToString } from "@syumai/dejs";
 import { usersCollection } from "../models/db.ts";
 import { UserSchema } from "../models/UserSchema.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
-import {
-  create,
-  getNumericDate,
-  verify,
-} from "https://deno.land/x/djwt@v2.2/mod.ts";
+import { getNumericDate } from "@zaubrik/djwt";
 import { JWT_EXP_IN_MINUTES, JWT_SECRET } from "../config.ts";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 import {
-  ERROR,
   INCORRECT_USERNAME_OR_PASSWORD,
   INVALID_DATA,
   SUCCESS,
@@ -22,6 +17,7 @@ import {
 } from "../helpers/message_constants.ts";
 
 import { responseErr } from "../helpers/response.ts";
+import { createJwt, verifyJwt } from "../helpers/jwt.ts";
 
 export {
   checkAuth,
@@ -108,15 +104,7 @@ const postLogin = async (ctx: Context) => {
   if (!(await bcrypt.compare(authPassword, u.hashedPassword))) {
     return responseErr(ctx, INCORRECT_USERNAME_OR_PASSWORD);
   }
-
-  const jwt = await create(
-    { alg: "HS512", typ: "JWT" },
-    {
-      usr: u.hashedUsername,
-      exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
-    },
-    JWT_SECRET,
-  );
+  const jwt = await createJwt({ usr: u.hashedUsername });
   const now = new Date();
   now.setTime(now.getTime() + parseInt(JWT_EXP_IN_MINUTES) * 60 * 1000);
   const cookieExpireTime = now.toUTCString();
@@ -136,13 +124,13 @@ const getLogout = async (ctx: Context) => {
 };
 
 const toHomeIfLoggedIn = async (ctx: Context, next: any) => {
-  const accessToken = ctx.cookies.get("access_token");
+  const accessToken = await ctx.cookies.get("access_token");
   if (accessToken === undefined) {
     return await next();
   }
 
   try {
-    await verify(accessToken, JWT_SECRET, "HS512");
+    await verifyJwt(accessToken);
     ctx.response.redirect("/");
   } catch {
     await next();
@@ -155,7 +143,7 @@ const checkAuth = async (ctx: Context, next: any) => {
     "random_string_represent_wrong_token";
 
   try {
-    ctx.state.payload = await verify(accessToken, JWT_SECRET, "HS512");
+    ctx.state.payload = await verifyJwt(accessToken);
     await next();
   } catch (err) {
     return ctx.response.redirect("/login");

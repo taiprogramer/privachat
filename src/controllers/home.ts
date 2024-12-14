@@ -1,7 +1,6 @@
 import { Context } from "@oak/oak";
 import { renderFileToString } from "@syumai/dejs";
-import { verify } from "https://deno.land/x/djwt@v2.2/mod.ts";
-import { JWT_SECRET } from "../config.ts";
+import { verifyJwt } from "../helpers/jwt.ts";
 
 export const getHome = async (ctx: Context) => {
   const accessToken = await ctx.cookies.get("access_token");
@@ -10,7 +9,7 @@ export const getHome = async (ctx: Context) => {
 
   if (accessToken !== undefined) {
     try {
-      const payload = await verify(accessToken, JWT_SECRET, "HS512");
+      const payload = await verifyJwt(accessToken);
       isAuthenticated = true;
       hashedUsername = payload.usr;
     } catch {
