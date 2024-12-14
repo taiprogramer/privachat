@@ -1,6 +1,6 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Context } from "@oak/oak";
 import { usersCollection } from "../models/db.ts";
-import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
+import { renderFileToString } from "@syumai/dejs";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 import { ContactType, UserSchema } from "../models/UserSchema.ts";
 import {
@@ -15,9 +15,9 @@ import { responseErr } from "../helpers/response.ts";
 export { getAddContact, getListContact, postAddContact };
 
 const postAddContact = async (ctx: Context) => {
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const contactHashedUsername = bodyValue.get("hashed_username") || "";
-  const nickName = bodyValue.get("nickname") || "";
+  const formValue = await ctx.request.body.form();
+  const contactHashedUsername = formValue.get("hashed_username") || "";
+  const nickName = formValue.get("nickname") || "";
 
   if (
     isStringEmpty(contactHashedUsername) ||
@@ -51,23 +51,24 @@ const postAddContact = async (ctx: Context) => {
   let contactList: ContactType[] = user.contactList || [];
 
   /* maybe contact user already be in contactList of user */
-  const contactAlready: any = contactList.find((c: ContactType) =>
-    c.hashedUsername ===
-      contactUser.hashedUsername
+  const contactAlready: any = contactList.find(
+    (c: ContactType) => c.hashedUsername === contactUser.hashedUsername,
   );
   if (contactAlready !== undefined) {
     return responseErr(
       ctx,
-      `You already added ${
-        contactAlready.hashedUsername.substring(0, 15)
-      } as ${contactAlready.nickName}.`,
+      `You already added ${contactAlready.hashedUsername.substring(
+        0,
+        15,
+      )} as ${contactAlready.nickName}.`,
     );
   }
   if (await addContactDB(user, [...contactList, contact])) {
     ctx.response.body = JSON.stringify({
-      msg: `Added ${
-        contact.hashedUsername.substring(0, 15)
-      } as ${contact.nickName}.`,
+      msg: `Added ${contact.hashedUsername.substring(
+        0,
+        15,
+      )} as ${contact.nickName}.`,
       msg_type: SUCCESS,
     });
     return;
@@ -92,9 +93,12 @@ const addContactDB = async (
 ): Promise<boolean> => {
   /* add contact to db */
   try {
-    await usersCollection.updateOne({ hashedUsername: u.hashedUsername }, {
-      $set: { contactList },
-    });
+    await usersCollection.updateOne(
+      { hashedUsername: u.hashedUsername },
+      {
+        $set: { contactList },
+      },
+    );
     return true;
   } catch {
     return false;

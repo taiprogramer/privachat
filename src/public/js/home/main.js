@@ -42,7 +42,7 @@ const ws = new WebSocket(`ws://${document.location.host}/ws`);
 ws.onmessage = async ({ data }) => {
   const { from: friendId } = JSON.parse(data);
   const chatId = await getChatId(friendId);
-  const messages = await listMessage(chatId) || [];
+  const messages = (await listMessage(chatId)) || [];
   if (messages.length < 1) {
     return;
   }
@@ -112,9 +112,8 @@ const contactItemClicked = async function () {
   selectedContactItem.classList.remove("contact-selected");
   this.classList.add("contact-selected");
   selectedContactItem = this;
-  spanFriendNickname.innerText = selectedContactItem.getAttribute(
-    "data-nickname",
-  );
+  spanFriendNickname.innerText =
+    selectedContactItem.getAttribute("data-nickname");
   lockContactItems = true;
   await startChat(selectedContactItem.getAttribute("data-uid"));
   lockContactItems = false;
@@ -140,7 +139,7 @@ const startChat = async (friendId) => {
     ulMessages.innerText = json.msg;
     return;
   }
-  const messages = await listMessage(chatId) || [];
+  const messages = (await listMessage(chatId)) || [];
   ulMessages.innerText = "";
 
   contacts[friendId].messages = [];
@@ -149,9 +148,8 @@ const startChat = async (friendId) => {
       message.encryptedContent,
       userPrivateKey,
     );
-    const sender = message.from === friendId
-      ? contacts[friendId].nickname
-      : "Me";
+    const sender =
+      message.from === friendId ? contacts[friendId].nickname : "Me";
     const li = createMessageItem(textMsg, message.timestamp, sender);
     contacts[friendId].messages.push(li);
     /* simulate prependChild - Thanks Denis Vlasov */
@@ -175,17 +173,21 @@ const tfMessageEnter = async () => {
   fetch("/send_message", {
     body,
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    if (j.msg_type === SUCCESS) {
-      tfMessage.value = "";
-      ulMessages.appendChild(li);
-      ulMessages.scrollTo(0, ulMessages.scrollHeight);
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          from: h1User.getAttribute("data-uid"),
-          to: friendId,
-        }));
+  })
+    .then((r) => r.json())
+    .then((j) => {
+      if (j.msg_type === SUCCESS) {
+        tfMessage.value = "";
+        ulMessages.appendChild(li);
+        ulMessages.scrollTo(0, ulMessages.scrollHeight);
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(
+            JSON.stringify({
+              from: h1User.getAttribute("data-uid"),
+              to: friendId,
+            }),
+          );
+        }
       }
-    }
-  });
+    });
 };

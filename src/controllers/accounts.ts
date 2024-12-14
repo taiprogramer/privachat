@@ -1,5 +1,5 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
+import { Context } from "@oak/oak";
+import { renderFileToString } from "@syumai/dejs";
 import { usersCollection } from "../models/db.ts";
 import { UserSchema } from "../models/UserSchema.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
@@ -34,16 +34,17 @@ export {
 };
 
 const postCreateNewAccount = async (ctx: Context) => {
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const hashedUsername: string = bodyValue.get("hashed_username") || "";
-  const authPassword: string = bodyValue.get("auth_password") || "";
-  const publicKey: string = bodyValue.get("public_key") || "";
-  const encryptedPrivateKey: string = bodyValue.get("encrypted_private_key") ||
-    "";
+  const formValue = await ctx.request.body.form();
+  const hashedUsername: string = formValue.get("hashed_username") || "";
+  const authPassword: string = formValue.get("auth_password") || "";
+  const publicKey: string = formValue.get("public_key") || "";
+  const encryptedPrivateKey: string =
+    formValue.get("encrypted_private_key") || "";
 
   /* check if all data are valid */
   if (
-    isStringEmpty(hashedUsername) || isStringEmpty(authPassword) ||
+    isStringEmpty(hashedUsername) ||
+    isStringEmpty(authPassword) ||
     isStringEmpty(publicKey) ||
     isStringEmpty(encryptedPrivateKey) ||
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
@@ -53,17 +54,17 @@ const postCreateNewAccount = async (ctx: Context) => {
   }
 
   /* check if user already exists. */
-  if (await usersCollection.findOne({ hashedUsername }) !== undefined) {
+  if ((await usersCollection.findOne({ hashedUsername })) !== undefined) {
     return responseErr(ctx, USER_ALREADY_EXISTS);
   }
 
   if (
-    !await createUser({
+    !(await createUser({
       hashedUsername,
       authPassword,
       publicKey,
       encryptedPrivateKey,
-    })
+    }))
   ) {
     return responseErr(ctx, UNKNOWN_ERROR);
   }
@@ -85,13 +86,14 @@ const getLogin = async (ctx: Context) => {
 };
 
 const postLogin = async (ctx: Context) => {
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const hashedUsername: string = bodyValue.get("hashed_username") || "";
-  const authPassword: string = bodyValue.get("auth_password") || "";
+  const formValue = await ctx.request.body.form();
+  const hashedUsername: string = formValue.get("hashed_username") || "";
+  const authPassword: string = formValue.get("auth_password") || "";
 
   /* make sure all data are valid */
   if (
-    isStringEmpty(hashedUsername) || isStringEmpty(authPassword) ||
+    isStringEmpty(hashedUsername) ||
+    isStringEmpty(authPassword) ||
     !isSHAhex({ s: hashedUsername, numBits: 256 }) ||
     !isSHAhex({ s: authPassword, numBits: 512 })
   ) {
@@ -103,14 +105,18 @@ const postLogin = async (ctx: Context) => {
     return responseErr(ctx, USER_NOT_FOUND);
   }
 
-  if (!await bcrypt.compare(authPassword, u.hashedPassword)) {
+  if (!(await bcrypt.compare(authPassword, u.hashedPassword))) {
     return responseErr(ctx, INCORRECT_USERNAME_OR_PASSWORD);
   }
 
-  const jwt = await create({ alg: "HS512", typ: "JWT" }, {
-    usr: u.hashedUsername,
-    exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
-  }, JWT_SECRET);
+  const jwt = await create(
+    { alg: "HS512", typ: "JWT" },
+    {
+      usr: u.hashedUsername,
+      exp: getNumericDate(parseInt(JWT_EXP_IN_MINUTES) * 60),
+    },
+    JWT_SECRET,
+  );
   const now = new Date();
   now.setTime(now.getTime() + parseInt(JWT_EXP_IN_MINUTES) * 60 * 1000);
   const cookieExpireTime = now.toUTCString();
@@ -129,10 +135,7 @@ const getLogout = async (ctx: Context) => {
   );
 };
 
-const toHomeIfLoggedIn = async (
-  ctx: Context,
-  next: any,
-) => {
+const toHomeIfLoggedIn = async (ctx: Context, next: any) => {
   const accessToken = ctx.cookies.get("access_token");
   if (accessToken === undefined) {
     return await next();
@@ -147,25 +150,29 @@ const toHomeIfLoggedIn = async (
 };
 
 const checkAuth = async (ctx: Context, next: any) => {
-  const accessToken = ctx.cookies.get("access_token") ||
+  const accessToken =
+    (await ctx.cookies.get("access_token")) ||
     "random_string_represent_wrong_token";
 
   try {
     ctx.state.payload = await verify(accessToken, JWT_SECRET, "HS512");
     await next();
-  } catch {
+  } catch (err) {
     return ctx.response.redirect("/login");
   }
 };
 
-async function createUser(
-  { hashedUsername, authPassword, publicKey, encryptedPrivateKey }: {
-    hashedUsername: string;
-    authPassword: string;
-    publicKey: string;
-    encryptedPrivateKey: string;
-  },
-): Promise<boolean> {
+async function createUser({
+  hashedUsername,
+  authPassword,
+  publicKey,
+  encryptedPrivateKey,
+}: {
+  hashedUsername: string;
+  authPassword: string;
+  publicKey: string;
+  encryptedPrivateKey: string;
+}): Promise<boolean> {
   const u: UserSchema = {
     hashedUsername,
     hashedPassword: await bcrypt.hash(authPassword),

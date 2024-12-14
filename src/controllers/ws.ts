@@ -1,15 +1,11 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import {
-  isWebSocketCloseEvent,
-  WebSocket,
-} from "https://deno.land/std@0.93.0/ws/mod.ts";
+import { Context } from "@oak/oak";
 
 export { ws };
 
 const sockets: Map<string, WebSocket> = new Map();
 
-const ws = async (ctx: Context) => {
-  const sock = await ctx.upgrade();
+const ws = (ctx: Context) => {
+  const sock = ctx.upgrade();
 
   if (!sock) {
     return;
@@ -18,23 +14,21 @@ const ws = async (ctx: Context) => {
   const uid = ctx.state.payload.usr;
   sockets.set(uid, sock);
 
-  for await (const ev of sock) {
-    if (typeof ev === "string") {
-      try {
-        const { from, to } = JSON.parse(ev);
-        const receiverSock = sockets.get(to);
-        if (!receiverSock) {
-          continue;
-        }
-        await receiverSock.send(JSON.stringify({
-          from,
-        }));
-      } catch {}
-      continue;
-    }
+  sock.onmessage = (ev: MessageEvent<string>) => {
+    try {
+      const { from, to } = JSON.parse(ev.data);
+      const receiverSock = sockets.get(to);
+      if (receiverSock) {
+        receiverSock.send(
+          JSON.stringify({
+            from,
+          }),
+        );
+      }
+    } catch {}
+  };
 
-    if (isWebSocketCloseEvent(ev)) {
-      sockets.delete(uid);
-    }
-  }
+  sock.onclose = () => {
+    sockets.delete(uid);
+  };
 };

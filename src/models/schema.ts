@@ -1,17 +1,17 @@
 /**
-* Each user has many friends. (Friendship)
-* User and friend have only one chat (Friendship.chatId)
-* Each chat have many messages. (Message)
-* */
+ * Each user has many friends. (Friendship)
+ * User and friend have only one chat (Friendship.chatId)
+ * Each chat have many messages. (Message)
+ * */
 
-import { Bson } from "../deps.ts";
+import { ObjectId } from "@db/mongo";
 
 export type IFriendship = {
   _id?: { $oid: string };
   uid: string; // who add friend to his/her friend list.
   friendId: string; // who will be added
   nickname: string; // friend's nick name
-  chatId?: Bson.ObjectId; // primary key of Chat
+  chatId?: ObjectId; // primary key of Chat
 };
 
 export type IUser = {
@@ -33,5 +33,5 @@ export type IMessage = {
   content: string; // openpgp encrypt content
   timestamp: Date; // when message was sent
   seen: boolean; // is message seen or not
-  chatId: Bson.ObjectId; // primary key of Chat
+  chatId: ObjectId; // primary key of Chat
 };

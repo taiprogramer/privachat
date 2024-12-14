@@ -1,9 +1,9 @@
-import { Bson } from "https://deno.land/x/mongo@v0.22.0/mod.ts";
+import { ObjectId } from "@db/mongo";
 
 export interface ContactType {
   hashedUsername: string;
   nickName: string;
-  chat?: Bson.ObjectId;
+  chat?: ObjectId;
 }
 
 export interface UserSchema {

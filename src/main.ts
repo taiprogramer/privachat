@@ -1,4 +1,4 @@
-import { Application } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Application } from "@oak/oak";
 import { serveStaticFile } from "./serve_static_file.ts";
 import router from "./router.ts";
 import { PORT } from "./config.ts";

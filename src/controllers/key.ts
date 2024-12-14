@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Context } from "@oak/oak";
 import { usersCollection } from "../models/db.ts";
 import { responseErr } from "../helpers/response.ts";
 import {
@@ -29,8 +29,8 @@ const postGetEncryptedPrivateKey = async (ctx: Context) => {
 };
 
 const postGetPublicKey = async (ctx: Context) => {
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const uid = bodyValue.get("uid") || "";
+  const formValue = await ctx.request.body.form();
+  const uid = formValue.get("uid") || "";
 
   if (isStringEmpty(uid) || !isSHAhex({ s: uid, numBits: 256 })) {
     return responseErr(ctx, INVALID_DATA);

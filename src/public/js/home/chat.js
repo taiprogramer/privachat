@@ -13,11 +13,13 @@ const getChatId = async (friendId) => {
   return fetch("/get_single_chat", {
     body,
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    if (j.msg_type === SUCCESS) {
-      return j.msg.chat_id;
-    }
-  });
+  })
+    .then((r) => r.json())
+    .then((j) => {
+      if (j.msg_type === SUCCESS) {
+        return j.msg.chat_id;
+      }
+    });
 };
 
 /**
@@ -31,7 +33,9 @@ const makeNewChat = async (friendId) => {
   return fetch("/create_single_chat", {
     body,
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    return j;
-  });
+  })
+    .then((r) => r.json())
+    .then((j) => {
+      return j;
+    });
 };

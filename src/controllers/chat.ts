@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Context } from "@oak/oak";
 import { isSHAhex, isStringEmpty } from "../helpers/string_validator.ts";
 import {
   ALREADY_HAVE_A_CHAT,
@@ -22,8 +22,8 @@ export { postCreateSingleChat, postGetSingleChat };
  * signaling situation. */
 const postGetSingleChat = async (ctx: Context) => {
   const uid = ctx.state.payload.usr;
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const friendId = bodyValue.get("friendId") || "";
+  const formValue = await ctx.request.body.form();
+  const friendId = formValue.get("friendId") || "";
   /* validate data */
   if (isStringEmpty(friendId) || !isSHAhex({ s: friendId, numBits: 256 })) {
     return responseErr(ctx, INVALID_DATA);
@@ -36,8 +36,8 @@ const postGetSingleChat = async (ctx: Context) => {
 
   /* check if friendId in contactList */
   const contactList: ContactType[] = u.contactList || [];
-  const contactUser = contactList.find((c: ContactType) =>
-    c.hashedUsername === friendId
+  const contactUser = contactList.find(
+    (c: ContactType) => c.hashedUsername === friendId,
   );
 
   if (contactUser === undefined) {
@@ -60,8 +60,8 @@ const postGetSingleChat = async (ctx: Context) => {
 /* Create a new chat with friend */
 const postCreateSingleChat = async (ctx: Context) => {
   const uid = ctx.state.payload.usr;
-  const bodyValue = await ctx.request.body({ type: "form" }).value;
-  const friendId = bodyValue.get("friendId") || "";
+  const formValue = await ctx.request.body.form();
+  const friendId = formValue.get("friendId") || "";
   /* validate data */
   if (isStringEmpty(friendId) || !isSHAhex({ s: friendId, numBits: 256 })) {
     return responseErr(ctx, INVALID_DATA);
@@ -76,8 +76,8 @@ const postCreateSingleChat = async (ctx: Context) => {
 
   /* check if friendId in contactList */
   const contactList: ContactType[] = u.contactList || [];
-  const contactUser = contactList.find((c: ContactType) =>
-    c.hashedUsername === friendId
+  const contactUser = contactList.find(
+    (c: ContactType) => c.hashedUsername === friendId,
   );
 
   if (contactUser === undefined) {
@@ -106,17 +106,21 @@ const postCreateSingleChat = async (ctx: Context) => {
   }
 
   /* add chat id to contact field on both side */
-  const resultObj1 = await usersCollection
-    .updateOne({
+  const resultObj1 = await usersCollection.updateOne(
+    {
       hashedUsername: uid,
       "contactList.hashedUsername": friendId,
-    }, { $set: { "contactList.$.chat": insertedId } });
+    },
+    { $set: { "contactList.$.chat": insertedId } },
+  );
 
-  const resultObj2 = await usersCollection
-    .updateOne({
+  const resultObj2 = await usersCollection.updateOne(
+    {
       hashedUsername: friendId,
       "contactList.hashedUsername": uid,
-    }, { $set: { "contactList.$.chat": insertedId } });
+    },
+    { $set: { "contactList.$.chat": insertedId } },
+  );
 
   if (!resultObj1.modifiedCount || !resultObj2.modifiedCount) {
     return responseErr(ctx, UNKNOWN_ERROR);

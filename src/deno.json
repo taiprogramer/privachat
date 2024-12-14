@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@db/mongo": "jsr:@db/mongo@^0.33.0",
+    "@oak/oak": "jsr:@oak/oak@^17.1.3",
+    "@syumai/dejs": "https://deno.land/x/dejs@0.10.3/mod.ts"
+  }
+}

@@ -1,10 +1,10 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import { renderFileToString } from "https://deno.land/x/dejs@0.9.3/mod.ts";
+import { Context } from "@oak/oak";
+import { renderFileToString } from "@syumai/dejs";
 import { verify } from "https://deno.land/x/djwt@v2.2/mod.ts";
 import { JWT_SECRET } from "../config.ts";
 
 export const getHome = async (ctx: Context) => {
-  const accessToken = ctx.cookies.get("access_token");
+  const accessToken = await ctx.cookies.get("access_token");
   let isAuthenticated: boolean = false;
   let hashedUsername = null;
 
@@ -18,8 +18,8 @@ export const getHome = async (ctx: Context) => {
     }
   }
 
-  ctx.response.body = await renderFileToString(
-    `${Deno.cwd()}/views/home.ejs`,
-    { isAuthenticated, hashedUsername },
-  );
+  ctx.response.body = await renderFileToString(`${Deno.cwd()}/views/home.ejs`, {
+    isAuthenticated,
+    hashedUsername,
+  });
 };

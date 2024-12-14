@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Context } from "@oak/oak";
 import { ERROR } from "./message_constants.ts";
 
 export const responseErr = (ctx: Context, msg: string) => {

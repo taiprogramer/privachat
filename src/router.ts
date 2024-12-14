@@ -1,4 +1,4 @@
-import { Router } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Router } from "@oak/oak";
 import {
   checkAuth,
   getCreateNewAccount,
@@ -28,11 +28,7 @@ const router = new Router();
 router
   .get("/", getHome)
   .post("/create_new_account", postCreateNewAccount)
-  .get(
-    "/create_new_account",
-    toHomeIfLoggedIn,
-    getCreateNewAccount,
-  )
+  .get("/create_new_account", toHomeIfLoggedIn, getCreateNewAccount)
   .get("/login", toHomeIfLoggedIn, getLogin)
   .post("/login", postLogin)
   .get("/logout", getLogout)
