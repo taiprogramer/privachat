@@ -13,7 +13,7 @@ formUserInfo.onsubmit = (e) => {
   performSubmit();
 };
 
-async function performSubmit() {
+function performSubmit() {
   const hashedUsername = SHA256.hex(tfUsername.value);
   /* local password use for encrypting private key */
   const localPassword = SHA512.hex(pfPassword.value);

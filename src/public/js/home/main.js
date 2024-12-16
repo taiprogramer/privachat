@@ -136,10 +136,14 @@ const startChat = async (friendId) => {
   const chatId = await getChatId(friendId);
   if (!chatId) {
     const json = await makeNewChat(friendId);
-    ulMessages.innerText = json.msg;
+    let chatIdOrErrorMsg = json.msg;
+    if (json.msg.chat_id !== undefined) {
+      chatIdOrErrorMsg = json.msg.chat_id;
+    }
+    ulMessages.innerText = chatIdOrErrorMsg;
     return;
   }
-  const messages = (await listMessage(chatId)) || [];
+  const messages = await listMessage(chatId);
   ulMessages.innerText = "";
 
   contacts[friendId].messages = [];
@@ -170,24 +174,22 @@ const tfMessageEnter = async () => {
   const body = new URLSearchParams();
   body.append("friendId", selectedContactItem.getAttribute("data-uid"));
   body.append("encryptedContent", encryptedPGPMessage);
-  fetch("/send_message", {
+  const response = await fetch("/send_message", {
     body,
     method: "POST",
-  })
-    .then((r) => r.json())
-    .then((j) => {
-      if (j.msg_type === SUCCESS) {
-        tfMessage.value = "";
-        ulMessages.appendChild(li);
-        ulMessages.scrollTo(0, ulMessages.scrollHeight);
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              from: h1User.getAttribute("data-uid"),
-              to: friendId,
-            }),
-          );
-        }
-      }
-    });
+  });
+  const json = await response.json();
+  if (json.msg_type === SUCCESS) {
+    tfMessage.value = "";
+    ulMessages.appendChild(li);
+    ulMessages.scrollTo(0, ulMessages.scrollHeight);
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(
+        JSON.stringify({
+          from: h1User.getAttribute("data-uid"),
+          to: friendId,
+        }),
+      );
+    }
+  }
 };

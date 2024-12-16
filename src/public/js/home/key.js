@@ -15,14 +15,12 @@ export {
 const getPublicKey = async (uid) => {
   const body = new URLSearchParams();
   body.append("uid", uid);
-  return fetch("/get_public_key", {
+  const response = await fetch("/get_public_key", {
     body,
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    if (j.msg_type === SUCCESS) {
-      return j.msg.public_key;
-    }
   });
+  const json = await response.json();
+  return json.msg.public_key;
 };
 
 /**
@@ -30,13 +28,11 @@ const getPublicKey = async (uid) => {
  * @returns {Promise<string | undefined>} privateKey
  */
 const getEncryptedPrivateKey = async () => {
-  return fetch("/get_encrypted_private_key", {
+  const response = await fetch("/get_encrypted_private_key", {
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    if (j.msg_type === SUCCESS) {
-      return j.msg.encrypted_private_key;
-    }
   });
+  const json = await response.json();
+  return json.msg.encrypted_private_key;
 };
 
 /**

@@ -5,11 +5,9 @@ export { createContactItems, getContactList };
  * @reurns {Promise<Array>}
  */
 const getContactList = async () => {
-  return fetch("/list_contact").then((r) => r.json()).then((j) => {
-    return j.contactList;
-  }).catch((_) => {
-    return new Array();
-  });
+  const response = await fetch("/list_contact");
+  const json = await response.json();
+  return json.contactList || [];
 };
 
 /**
@@ -18,7 +16,7 @@ const getContactList = async () => {
  * @returns {Array<HTMLLIElement>}
  */
 const createContactItems = (contactList = []) => {
-  let contactItems = [];
+  const contactItems = [];
   contactList.forEach((e) => {
     const li = document.createElement("li");
     li.innerText = e.nickName;

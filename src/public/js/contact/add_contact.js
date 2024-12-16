@@ -14,10 +14,10 @@ formAddContact.onsubmit = async (e) => {
     nickname: tfNickname.value,
   });
 
-  const json = await fetch("/add_contact", {
+  const response = await fetch("/add_contact", {
     method: "POST",
     body,
-  }).then((r) => r.json());
-
+  });
+  const json = await response.json();
   notify(json.msg, json.msg_type, 3000, divNotification);
 };

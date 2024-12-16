@@ -1,4 +1,4 @@
-import { Context, send } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import { Context, send } from "@oak/oak";
 
 export const serveStaticFile = async (ctx: Context, next: Function) => {
   const path = `${Deno.cwd()}/public${ctx.request.url.pathname}`;

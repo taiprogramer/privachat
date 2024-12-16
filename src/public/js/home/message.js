@@ -5,19 +5,20 @@ export { createMessageItem, decryptMessage, encryptMessage, listMessage };
 /**
  * List historical messages
  * @param {string} chatId
- * @returns {Array<Message> | undefined} messages
+ * @returns Promise<Array<Message>> messages
  */
 const listMessage = async (chatId) => {
   const body = new URLSearchParams();
   body.append("chatId", chatId);
-  return fetch("/list_message", {
+  const response = await fetch("/list_message", {
     body,
     method: "POST",
-  }).then((r) => r.json()).then((j) => {
-    if (j.msg_type === SUCCESS) {
-      return j.msg.messages;
-    }
   });
+  const json = await response.json();
+  if (json.msg_type === SUCCESS) {
+    return json.msg.messages;
+  }
+  return [];
 };
 
 /**
@@ -27,11 +28,7 @@ const listMessage = async (chatId) => {
  * @param {openpgp.Key} receiverPub - receiver public key
  * @returns {Promise<string>} encryptedPGPMessage
  */
-const encryptMessage = async (
-  textMsg,
-  senderPub,
-  receiverPub,
-) => {
+const encryptMessage = async (textMsg, senderPub, receiverPub) => {
   const publicKeys = [senderPub, receiverPub];
   const message = await openpgp.Message.fromText(textMsg);
   const encryptedPGPMessage = await openpgp.encrypt({
@@ -47,10 +44,7 @@ const encryptMessage = async (
  * @param {openpgp.Key} privateKey
  * @return {Promise<string>} textMsg
  */
-const decryptMessage = async (
-  encryptedPGPMessage,
-  privateKey,
-) => {
+const decryptMessage = async (encryptedPGPMessage, privateKey) => {
   const message = await openpgp.readMessage({
     armoredMessage: encryptedPGPMessage,
   });

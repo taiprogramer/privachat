@@ -33,10 +33,11 @@ formUserInfo.onsubmit = async (e) => {
     encrypted_private_key: privateKeyArmored,
   });
 
-  const json = await fetch("/create_new_account", {
+  const response = await fetch("/create_new_account", {
     method: "POST",
     body,
-  }).then((r) => r.json());
+  });
+  const json = await response.json();
 
   notify(json.msg, json.msg_type, 3000, divNotification);
 };
